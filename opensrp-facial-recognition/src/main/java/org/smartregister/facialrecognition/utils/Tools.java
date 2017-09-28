@@ -76,7 +76,7 @@ public class Tools {
     private static HashMap<String, String> hash;
     private String albumBuffer;
     private List<ProfileImage> list;
-    private static String anmId = Context.getInstance().allSharedPreferences().fetchRegisteredANM();
+//    private static String anmId = Context.getInstance().allSharedPreferences().fetchRegisteredANM();
     private static ProfileImage profileImage = new ProfileImage();
     private static ImageRepository imageRepo;
 //    private FaceRepository faceRepo = (FaceRepository) new FaceRepository().faceRepository();
@@ -152,7 +152,7 @@ public class Tools {
         // insert into the db local
         if (!updated) {
             profileImage.setImageid(UUID.randomUUID().toString());
-            profileImage.setAnmId(anmId);
+//            profileImage.setAnmId(anmId);
             profileImage.setEntityID(entityId);
             profileImage.setContenttype("jpeg");
             profileImage.setFilepath(absoluteFileName);
@@ -886,4 +886,11 @@ public class Tools {
     }
 
 
+    public static boolean isSupport() {
+        if(FacialProcessing.isFeatureSupported(FacialProcessing.FEATURE_LIST.FEATURE_FACIAL_PROCESSING)){
+            return true;
+        } else {
+        return false;
+        }
+    }
 }

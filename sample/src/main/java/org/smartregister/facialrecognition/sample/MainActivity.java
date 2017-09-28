@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import org.smartregister.facialrecognition.activity.OpenCameraActivity;
+import org.smartregister.facialrecognition.utils.Tools;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,6 +35,10 @@ public class MainActivity extends AppCompatActivity {
         });
 
         FloatingActionButton fab_camera = (FloatingActionButton) findViewById(R.id.fab_cam);
+
+        if (!Tools.isSupport()) {
+            fab_camera.setVisibility(View.INVISIBLE);
+        }
         fab_camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
