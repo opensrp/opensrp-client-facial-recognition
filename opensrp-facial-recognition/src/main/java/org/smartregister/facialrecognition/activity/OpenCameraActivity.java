@@ -33,6 +33,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.qualcomm.snapdragon.sdk.face.FaceData;
 import com.qualcomm.snapdragon.sdk.face.FacialProcessing;
@@ -81,22 +82,7 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
     long t_startCamera = 0;
     double t_stopCamera = 0;
     String str_origin_class;
-    /**
-     *
-     */
-    ShutterCallback shutterCallback = new ShutterCallback() {
-        public void onShutter() {
-            Log.d(TAG, "onShutter'd");
-        }
-    };
-    /**
-     *
-     */
-    PictureCallback rawCallback = new PictureCallback() {
-        public void onPictureTaken(byte[] data, Camera camera) {
-            Log.d(TAG, "onPictureTaken - raw");
-        }
-    };
+
     private ImageView cameraButton;
     private ImageView settingsButton;
     private ImageView switchCameraButton;
@@ -119,92 +105,6 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
     private ImageView clientListButton;
     private String selectedPersonName;
     private boolean updated;
-    /**
-     *
-     */
-    PictureCallback jpegCallback = new PictureCallback() {
-        public void onPictureTaken(byte[] data, Camera camera) {
-            savePicture(data);
-        }
-
-    };
-
-    /*
-     * Function to write an image to the file system for future viewing.
-     */
-    public static boolean WritePictureToFile(Context context, Bitmap bitmap) {
-        File pictureFile = getOutputMediaFile();
-        if (pictureFile == null) {
-            Log.e(TAG, "Error creating media file, check storage permissions ");
-            return false;
-        }
-
-        try {
-            FileOutputStream fos = new FileOutputStream(pictureFile);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-            fos.close();
-            Log.e(TAG, "Wrote image to " + pictureFile);
-
-            MediaScannerConnection.scanFile(context, new String[]{pictureFile.toString()}, null, new MediaScannerConnection.OnScanCompletedListener() {
-                public void onScanCompleted(String path, Uri uri) {
-                    Log.i("ExternalStorage", "Scanned " + path + ":");
-                    Log.i("ExternalStorage", "-> uri=" + uri);
-                }
-            });
-            pathName = pictureFile.toString();
-            Log.e(TAG, "Path Name = " + pathName);
-            return true;
-
-        } catch (FileNotFoundException e) {
-            Log.d(TAG, "File not found: " + e.getMessage());
-        } catch (IOException e) {
-            Log.d(TAG, "Error accessing file: " + e.getMessage());
-        }
-        return false;
-    }
-
-    /**
-     * Create a File for saving an image or video
-     */
-    @SuppressLint("SimpleDateFormat")
-    private static File getOutputMediaFile() {
-        // To be safe, you should check that the SDCard is mounted
-        // using Environment.getExternalStorageState() before doing this.
-
-        File mediaStorageDir = new File(
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "OPENSRP_SID");
-
-        // This location works best if you want the created images to be shared
-        // between applications and persist after your app has been uninstalled.
-
-        // Create the storage directory if it does not exist
-        if (!mediaStorageDir.exists()) {
-            Log.e(TAG, "failed to find directory " + mediaStorageDir.getAbsolutePath());
-            if (!mediaStorageDir.mkdirs()) {
-                Log.e(TAG, "failed to create directory " + mediaStorageDir.getAbsolutePath());
-                return null;
-            }
-        }
-
-        // Create a media file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-//        String filename = entity);
-        File mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_" + entityId + ".jpg");
-        return mediaFile;
-    }
-
-    /**
-     * Get Client List
-     *
-     * @param context
-     * @return
-     */
-    public static HashMap<String, String> retrieveHash(Context context) {
-        SharedPreferences settings = context.getSharedPreferences(FaceConstants.HASH_NAME, 0);
-        HashMap<String, String> hash = new HashMap<>();
-        hash.putAll((Map<? extends String, ? extends String>) settings.getAll());
-        return hash;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -562,6 +462,32 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
         activityStartedOnce = false;
     }
 
+    /**
+     *
+     */
+    ShutterCallback shutterCallback = new ShutterCallback() {
+        public void onShutter() {
+            Log.d(TAG, "onShutter'd");
+        }
+    };
+    /**
+     *
+     */
+    PictureCallback rawCallback = new PictureCallback() {
+        public void onPictureTaken(byte[] data, Camera camera) {
+            Log.d(TAG, "onPictureTaken - raw");
+        }
+    };
+    /**
+     *
+     */
+    PictureCallback jpegCallback = new PictureCallback() {
+        public void onPictureTaken(byte[] data, Camera camera) {
+            savePicture(data);
+        }
+
+    };
+
     // Stop the camera preview. release the camera. Release the FacialActivity Processing object. Make the objects null.
     private void stopCamera() {
 
@@ -738,35 +664,6 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
     }
 
     /*
-     * Function to detect the on click listener for the switch camera button.
-     */
-    private void switchCameraActionListener() {
-        switchCameraButton.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View arg0) {
-
-                if (!switchCamera)        // Flag to check if the camera is switched to front or back.
-                {
-                    switchCameraButton.setImageResource(R.drawable.camera_revert1);
-                    stopCamera();
-                    switchCamera = true;
-                    settingsButtonPress = false;
-                    initCamera();
-                    fadeOutAnimation();
-                } else {
-                    switchCameraButton.setImageResource(R.drawable.camera_revert2);
-                    stopCamera();
-                    switchCamera = false;
-                    settingsButtonPress = false;
-                    initCamera();
-                    fadeOutAnimation();
-                }
-            }
-        });
-    }
-
-    /*
      * Function to detect the on click listener for the GALLERY button.
      */
     private void galleryActionListener() {
@@ -790,7 +687,6 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
 
             @Override
             public void onClick(View arg0) {
-
                 if (numFaces != 0) {
                     if (!perfectModeButtonPress) {
                         cameraObj.autoFocus(new Camera.AutoFocusCallback() {
@@ -825,6 +721,8 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
                             cameraButtonPress = false;
                         }
                     }
+                } else {
+                    Toast.makeText(OpenCameraActivity.this, "No Face Detected", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -1048,28 +946,6 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
 
     }
 
-    public void loadAlbum() {
-//        Toast.makeText(this, "Load FacialActivity Album", Toast.LENGTH_SHORT).show();
-        Log.e(TAG, "loadAlbum: start");
-        SharedPreferences settings = getSharedPreferences(FaceConstants.ALBUM_NAME, 0);
-        String arrayOfString = settings.getString(FaceConstants.ALBUM_ARRAY, null);
-
-        Log.e(TAG, "loadAlbum: " + arrayOfString);
-        byte[] albumArray;
-        if (arrayOfString != null) {
-            String[] splitStringArray = arrayOfString.substring(1,
-                    arrayOfString.length() - 1).split(", ");
-
-            albumArray = new byte[splitStringArray.length];
-            for (int i = 0; i < splitStringArray.length; i++) {
-                albumArray[i] = Byte.parseByte(splitStringArray[i]);
-            }
-            // Boolean
-            OpenCameraActivity.faceProc.deserializeRecognitionAlbum(albumArray);
-            Log.e(TAG, "De-Serialized Album Success! " + albumArray.toString());
-        }
-    }
-
     protected void saveHash(HashMap<String, String> hashMap, Context context) {
         SharedPreferences settings = context.getSharedPreferences(FaceConstants.HASH_NAME, 0);
 
@@ -1080,6 +956,19 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
             editor.putString(s, hashMap.get(s));
         }
         editor.apply();
+    }
+
+    /**
+     * Get Client List
+     *
+     * @param context
+     * @return
+     */
+    public static HashMap<String, String> retrieveHash(Context context) {
+        SharedPreferences settings = context.getSharedPreferences(FaceConstants.HASH_NAME, 0);
+        HashMap<String, String> hash = new HashMap<>();
+        hash.putAll((Map<? extends String, ? extends String>) settings.getAll());
+        return hash;
     }
 
 

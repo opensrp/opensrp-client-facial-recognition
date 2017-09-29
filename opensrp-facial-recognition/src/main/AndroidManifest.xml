@@ -13,7 +13,7 @@
         android:supportsRtl="true">
 
         <activity android:name=".activity.OpenCameraActivity" />
-        <activity android:name=".activity.PhotoConfirmationActivity" />
+        <activity android:name=".activity.PhotoConfirmationActivity" android:theme="@android:style/Theme.Holo.Light"/>
     </application>
 
 </manifest>

@@ -124,16 +124,14 @@ public class PhotoConfirmationActivity extends Activity {
         boolean setBitmapResult = objFace.setBitmap(storedBitmap);
         faceDatas = objFace.getFaceData();
 
-//        Log.e(TAG, "process_img: w "+ tempBitmap.getWidth() );
-//        Log.e(TAG, "process_img: h "+ tempBitmap.getHeight() );
         Log.e(TAG, "process_img: w "+confirmationView.getWidth() ); //w 1536
         Log.e(TAG, "process_img: h "+confirmationView.getHeight() ); //h 1872
 
         /**
          * Set Height and Width
          */
-        int imageViewSurfaceWidth = storedBitmap.getWidth();
-        int imageViewSurfaceHeight = storedBitmap.getHeight();
+        int imageViewSurfaceWidth = storedBitmap.getWidth()/2;
+        int imageViewSurfaceHeight = storedBitmap.getHeight()/2;
 //        int imageViewSurfaceWidth = confirmationView.getWidth();
 //        int imageViewSurfaceHeight = confirmationView.getHeight();
 
@@ -144,13 +142,13 @@ public class PhotoConfirmationActivity extends Activity {
 
 //        mutableBitmap = storedBitmap.copy(Bitmap.Config.ARGB_8888, true);
 //        Bitmap tempBitmap = Bitmap.createScaledBitmap(storedBitmap,
-//                (storedBitmap.getWidth() / 2), (storedBitmap.getHeight() / 2),
+//                (storedBitmap.getWidth() / 20), (storedBitmap.getHeight() / 20),
 //                false);
-        confirmationView.setImageBitmap(mutableBitmap); // Setting the view with the bitmap image that came in.
 
+        confirmationView.setImageBitmap(mutableBitmap);
+//        confirmationView.setImageBitmap(tempBitmap);
 
         objFace.normalizeCoordinates(imageViewSurfaceWidth, imageViewSurfaceHeight);
-
         // Set Bitmap Success
         if(setBitmapResult){
 

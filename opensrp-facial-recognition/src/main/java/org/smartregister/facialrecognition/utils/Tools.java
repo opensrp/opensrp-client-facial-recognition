@@ -629,20 +629,21 @@ public class Tools {
 
         byte[] faceVector;
 
+        // New record
         if (!updated) {
 
-            int result = objFace.addPerson(arrayPossition);
+//            int result = objFace.addPerson(arrayPossition);
             faceVector = objFace.serializeRecogntionAlbum();
 
-            hash = retrieveHash(context);
+//            hash = retrieveHash(context);
 
-            hash.put(entityId, Integer.toString(result));
+//            hash.put(entityId, Integer.toString(result));
 
             // Save Hash
-            saveHash(hash, context);
+//            saveHash(hash, context);
 
             // Save to buffer
-            saveAlbum(Arrays.toString(faceVector), context);
+//            saveAlbum(Arrays.toString(faceVector), context);
 
             String albumBufferArr = Arrays.toString(faceVector);
 

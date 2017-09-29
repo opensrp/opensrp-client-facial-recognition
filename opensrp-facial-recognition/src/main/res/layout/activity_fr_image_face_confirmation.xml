@@ -8,7 +8,8 @@
         android:id="@+id/iv_confirmationView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentTop="true"/>
+        android:layout_alignParentTop="true"
+        tools:ignore="ContentDescription" />
 
       <ImageView
           android:layout_width="50dp"
@@ -18,7 +19,8 @@
           android:layout_marginRight="55dp"
           android:background="@drawable/ic_checked_white"
           android:id="@+id/iv_approve"
-          android:layout_alignTop="@+id/iv_cancel" />
+          android:layout_alignTop="@+id/iv_cancel"
+          tools:ignore="ContentDescription,RtlHardcoded" />
 
       <ImageView
           android:layout_width="50dp"
@@ -28,7 +30,7 @@
           android:layout_marginLeft="55dp"
           android:background="@drawable/ic_trash_delete"
           android:id="@+id/iv_cancel"
-          />
+          tools:ignore="ContentDescription,RtlHardcoded" />
 
 
 </RelativeLayout>
