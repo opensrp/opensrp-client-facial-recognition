@@ -26,12 +26,15 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.smartregister.Context;
 import org.smartregister.facialrecognition.R;
 import org.smartregister.facialrecognition.activity.ClientsListActivity;
-import org.smartregister.facialrecognition.activity.PhotoConfirmationActivity;
 import org.smartregister.facialrecognition.activity.OpenCameraActivity;
-import org.smartregister.facialrecognition.repository.ImageRepository;
+import org.smartregister.facialrecognition.activity.PhotoConfirmationActivity;
 import org.smartregister.facialrecognition.domain.ProfileImage;
+import org.smartregister.facialrecognition.repository.ImageRepository;
+import org.smartregister.util.OpenSRPImageLoader;
+import org.smartregister.view.activity.DrishtiApplication;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -46,9 +49,6 @@ import java.util.UUID;
 
 import cz.msebera.android.httpclient.Header;
 import okhttp3.ResponseBody;
-import org.smartregister.Context;
-import org.smartregister.util.OpenSRPImageLoader;
-import org.smartregister.view.activity.DrishtiApplication;
 
 import static org.apache.commons.lang3.StringUtils.capitalize;
 

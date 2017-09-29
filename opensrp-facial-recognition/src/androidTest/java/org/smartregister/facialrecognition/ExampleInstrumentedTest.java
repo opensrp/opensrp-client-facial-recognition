@@ -1,4 +1,4 @@
-package org.smartregister.mylibrary;
+package org.smartregister.facialrecognition;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

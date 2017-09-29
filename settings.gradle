@@ -1,1 +1,1 @@
-include ':sample', ':opensrp-facial-recognition', ':mylibrary'
+include ':sample', ':opensrp-facial-recognition'
