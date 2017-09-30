@@ -28,9 +28,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.smartregister.Context;
 import org.smartregister.facialrecognition.R;
-import org.smartregister.facialrecognition.activity.ClientsListActivity;
-import org.smartregister.facialrecognition.activity.OpenCameraActivity;
-import org.smartregister.facialrecognition.activity.PhotoConfirmationActivity;
+import org.smartregister.facialrecognition.activities.ClientsListActivity;
+import org.smartregister.facialrecognition.activities.OpenCameraActivity;
+import org.smartregister.facialrecognition.activities.PhotoConfirmationActivity;
 import org.smartregister.facialrecognition.domain.ProfileImage;
 import org.smartregister.facialrecognition.repository.ImageRepository;
 import org.smartregister.util.OpenSRPImageLoader;
@@ -181,6 +181,9 @@ public class Tools {
         // Mode 1 = Thumbs
 
         // Location use app_dir
+        String libraryPath = androContext.getApplicationContext().getApplicationInfo().dataDir + "/.thumbs";
+        Log.e(TAG, "getOutputMediaFile: "+libraryPath);
+
         String imgFolder = (mode == 0) ? DrishtiApplication.getAppDir() :
                 DrishtiApplication.getAppDir() + File.separator + ".thumbs";
 //        String imgFolder = (mode == 0) ? "OPENSRP_SID":"OPENSRP_SID"+File.separator+".thumbs";
@@ -629,14 +632,14 @@ public class Tools {
 
         byte[] faceVector;
 
+        setAppContext(context);
+
         // New record
         if (!updated) {
 
 //            int result = objFace.addPerson(arrayPossition);
             faceVector = objFace.serializeRecogntionAlbum();
-
 //            hash = retrieveHash(context);
-
 //            hash.put(entityId, Integer.toString(result));
 
             // Save Hash
@@ -646,12 +649,10 @@ public class Tools {
 //            saveAlbum(Arrays.toString(faceVector), context);
 
             String albumBufferArr = Arrays.toString(faceVector);
-
             String[] faceVectorContent = albumBufferArr.substring(1, albumBufferArr.length() - 1).split(", ");
 
             // Get Face Vector Contnt Only by removing Header
             faceVectorContent = Arrays.copyOfRange(faceVectorContent, faceVector.length - 300, faceVector.length);
-
             WritePictureToFile(storedBitmap, entityId, faceVectorContent, updated);
 
             // Reset Album to get Single Face Vector
@@ -713,6 +714,11 @@ public class Tools {
         }
         Log.e(TAG, "saveAndClose: " + "end");
     }
+
+    private static void setAppContext(android.content.Context mcontext) {
+        androContext = mcontext;
+    }
+
 
     public static void setVectorsBuffered() {
         Log.e(TAG, "setVectorsBuffered: START" );

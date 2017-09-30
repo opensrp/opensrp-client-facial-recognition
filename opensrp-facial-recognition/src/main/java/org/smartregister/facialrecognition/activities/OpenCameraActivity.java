@@ -1,6 +1,5 @@
-package org.smartregister.facialrecognition.activity;
+package org.smartregister.facialrecognition.activities;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -8,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.hardware.Camera;
@@ -16,10 +14,8 @@ import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
 import android.hardware.Camera.Size;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
@@ -43,12 +39,6 @@ import org.smartregister.facialrecognition.R;
 import org.smartregister.facialrecognition.utils.FaceConstants;
 import org.smartregister.facialrecognition.utils.Tools;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -106,52 +96,22 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
     private String selectedPersonName;
     private boolean updated;
 
+    private int currentCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT ;
+    public boolean frontFacing;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         t_startCamera = System.nanoTime();
         super.onCreate(savedInstanceState);
 
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        initGuiAndAnimation();
 
-        setContentView(R.layout.activity_fr_main_face);
-
-        Bundle extras = getIntent().getExtras();
-        updated = extras.getBoolean("org.smartregister.facialrecognition.OpenCameraActivity.updated");
-        entityId = extras.getString("org.smartregister.facialrecognition.PhotoConfirmationActivity.id");
-        identifyPerson = extras.getBoolean("org.smartregister.facialrecognition.PhotoConfirmationActivity.identify");
-        str_origin_class = extras.getString("org.smartregister.facialrecognition.PhotoConfirmationActivity.origin");
-
+        initExtras();
         initializeFlags();
-
-        initializeCheckBoxes();
-
-        animationFadeOut = AnimationUtils.loadAnimation(OpenCameraActivity.this, R.anim.fadeout);
-
-        initializeImageButtons();
+        initListeners();
+        initCamera();
+        Tools.loadAlbum(getApplicationContext());
 
         hash = OpenCameraActivity.retrieveHash(getApplicationContext());
-
-        settingsButtonPress = false;
-
-        settingsButton.setVisibility(View.INVISIBLE);
-
-        chooseCameraActionListener();
-        galleryActionListener();
-        cameraActionListener();
-//        settingsActionListener();
-        faceDetectionActionListener();
-        perfectPhotoActionListener();
-        flashActionListener();
-
-        clientListActionListener();
-
-        initCamera();
-
-        display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-
-        Tools.loadAlbum(getApplicationContext());
 
     }
 
@@ -444,6 +404,26 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
         }
     }
 
+    private void initListeners() {
+        chooseCameraActionListener();
+        galleryActionListener();
+        cameraActionListener();
+//        settingsActionListener();
+        faceDetectionActionListener();
+        perfectPhotoActionListener();
+        flashActionListener();
+
+        clientListActionListener();
+    }
+
+    private void initExtras() {
+        Bundle extras = getIntent().getExtras();
+        updated = extras.getBoolean("org.smartregister.facialrecognition.OpenCameraActivity.updated");
+        entityId = extras.getString("org.smartregister.facialrecognition.PhotoConfirmationActivity.id");
+        identifyPerson = extras.getBoolean("org.smartregister.facialrecognition.PhotoConfirmationActivity.identify");
+        str_origin_class = extras.getString("org.smartregister.facialrecognition.PhotoConfirmationActivity.origin");
+    }
+
     /**
      *
      */
@@ -478,17 +458,26 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
             Log.d(TAG, "onPictureTaken - raw");
         }
     };
+
+
+
     /**
      *
      */
     PictureCallback jpegCallback = new PictureCallback() {
+
         public void onPictureTaken(byte[] data, Camera camera) {
             savePicture(data);
+            if (currentCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                frontFacing = true;
+            }
         }
 
     };
 
-    // Stop the camera preview. release the camera. Release the FacialActivity Processing object. Make the objects null.
+    // Stop the camera preview. release the camera.
+    // Release the FacialActivity Processing object.
+    // Make the objects null.
     private void stopCamera() {
 
         if (cameraObj != null) {
@@ -517,9 +506,6 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
             // Calling the FacialActivity Processing Constructor.
             faceProc = FacialProcessing.getInstance();
             faceProc.setRecognitionConfidence(Tools.CONFIDENCE_VALUE);
-
-//            Tools tools = new Tools();
-//            Tools.loadAlbum(getApplicationContext());
 
         } else if (!isDevCompat && !activityStartedOnce) {
             Log.e(TAG, "Feature is NOT supported");
@@ -565,7 +551,14 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
     /*
      * Function to Initialize all the image buttons that are there in the view and sets its visibility and image resources here.
      */
-    private void initializeImageButtons() {
+    private void initGuiAndAnimation() {
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        setContentView(R.layout.activity_fr_main_face);
+        display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+
+        animationFadeOut = AnimationUtils.loadAnimation(OpenCameraActivity.this, R.anim.fadeout);
+
         cameraButton = (ImageView) findViewById(R.id.cameraButton);     // Camera Shutter Button
 
         galleryButton = (ImageView) findViewById(R.id.gallery);
@@ -573,6 +566,7 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
         galleryButton.setVisibility(View.INVISIBLE);
 
         settingsButton = (ImageView) findViewById(R.id.settings);
+        settingsButton.setVisibility(View.INVISIBLE);
 
         chooseCameraButton = (ImageView) findViewById(R.id.chooseCamera);
         chooseCameraButton.setImageResource(R.drawable.camera_revert1);
@@ -614,6 +608,10 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
             faceEyesMouthBtn.setImageResource(R.drawable.fr_face_detection_on);
         }
         faceEyesMouthBtn.setVisibility(View.INVISIBLE);
+
+
+        initializeCheckBoxes();
+
     }
 
     /*
@@ -683,11 +681,13 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
      * Function to detect the on click listener for the camera shutter button.
      */
     private void cameraActionListener() {
+
+        Log.e(TAG, "cameraActionListener: "+ numFaces );
         cameraButton.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
-                if (numFaces != 0) {
+                if (numFaces != -1) {
                     if (!perfectModeButtonPress) {
                         cameraObj.autoFocus(new Camera.AutoFocusCallback() {
                             @Override
@@ -891,6 +891,7 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
      * Function to take the raw YUV byte array and do the necessary conversions to save it.
      */
     private void savePicture(byte[] data) {
+        cameraObj.startPreview();
         Intent intent = new Intent(this, PhotoConfirmationActivity.class);
         // This is when smart shutter feature is not ON. Take the photo generally.
         if (data != null) {

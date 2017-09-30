@@ -74,5 +74,11 @@ dependencies {
 
     compile 'com.loopj.android:android-async-http:1.4.9'
     compile 'com.squareup.okhttp3:okhttp:3.8.1'
+    compile 'com.balysv.materialmenu:material-menu:2.0.0'
 
+    testCompile 'junit:junit:4.12'
+
+    androidTestCompile 'junit:junit:4.12'
+
+    compile 'com.android.support:appcompat-v7:22.2.1'
 }

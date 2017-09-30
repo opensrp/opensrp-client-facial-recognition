@@ -1,7 +1,7 @@
-package org.smartregister.facialrecognition.activity;
+package org.smartregister.facialrecognition.activities;
 
-import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -11,6 +11,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
@@ -19,6 +20,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.balysv.materialmenu.MaterialMenuDrawable;
 import com.qualcomm.snapdragon.sdk.face.FaceData;
 import com.qualcomm.snapdragon.sdk.face.FacialProcessing;
 
@@ -32,7 +34,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 
-public class PhotoConfirmationActivity extends Activity {
+public class PhotoConfirmationActivity extends AppCompatActivity {
 
     private static String TAG = PhotoConfirmationActivity.class.getSimpleName();
     private Bitmap storedBitmap;
@@ -61,6 +63,13 @@ public class PhotoConfirmationActivity extends Activity {
     private byte[] faceVector;
     private boolean updated = false;
 
+//    private DrawerLayout drawerLayout;
+    private boolean isDrawerOpened;
+    private MaterialMenuDrawable materialMenu;
+    private Context context;
+    private boolean cameraFront = false;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,9 +79,33 @@ public class PhotoConfirmationActivity extends Activity {
 
         init_extras();
 
-        process_img();
+//        process_img();
+
+        image_proc();
 
         buttonJob();
+    }
+
+    private void image_proc() {
+        storedBitmap = BitmapFactory.decodeByteArray(data, 0, data.length, null);
+
+        Log.e(TAG, "image_proc: "+ switchCamera );
+        Matrix mat = new Matrix();
+
+
+        if (!cameraFront) {
+            Log.e(TAG, "process_img: Face FRONT "+angle );
+            mat.postRotate(angle == 90 ? 270 : (angle == 180 ? 180 : 0));
+//            mat.postScale(-1, 1);
+            storedBitmap = Bitmap.createBitmap(storedBitmap, 0, 0, storedBitmap.getWidth(), storedBitmap.getHeight(), mat, true);
+        } else {
+            Log.e(TAG, "process_img: Face BACK" );
+            mat.postRotate(angle == 90 ? 90 : (angle == 180 ? 180 : 0));
+            storedBitmap = Bitmap.createBitmap(storedBitmap, 0, 0, storedBitmap.getWidth(), storedBitmap.getHeight(), mat, true);
+        }
+
+        confirmationView.setImageBitmap(storedBitmap);
+
     }
 
     private void init_gui() {
@@ -80,6 +113,17 @@ public class PhotoConfirmationActivity extends Activity {
         confirmationView = (ImageView) findViewById(R.id.iv_confirmationView);
         trashButton = (ImageView) findViewById(R.id.iv_cancel);
         confirmButton = (ImageView) findViewById(R.id.iv_approve);
+
+//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
+//        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+//            @Override public void onClick(View v) {
+//                // Handle your drawable state here
+////                materialMenu.animateState(newState);
+//            }
+//        });
+//        materialMenu = new MaterialMenuDrawable(this, Color.WHITE, MaterialMenuDrawable.Stroke.THIN);
+//        toolbar.setNavigationIcon(materialMenu);
     }
 
     /**
@@ -89,14 +133,13 @@ public class PhotoConfirmationActivity extends Activity {
         Bundle extras = getIntent().getExtras();
         data = getIntent().getByteArrayExtra("org.smartregister.facialrecognition.PhotoConfirmationActivity");
         angle = extras.getInt("org.smartregister.facialrecognition.PhotoConfirmationActivity.orientation");
-        switchCamera = extras.getBoolean("org.smartregister.facialrecognition.PhotoConfirmationActivity.switchCamera");
+        cameraFront = extras.getBoolean("org.smartregister.facialrecognition.PhotoConfirmationActivity.switchCamera");
         entityId = extras.getString("org.smartregister.facialrecognition.PhotoConfirmationActivity.id");
         identifyPerson = extras.getBoolean("org.smartregister.facialrecognition.PhotoConfirmationActivity.identify");
         kiclient = extras.getParcelableArray("org.smartregister.facialrecognition.PhotoConfirmationActivity.kiclient");
         str_origin_class = extras.getString("org.smartregister.facialrecognition.PhotoConfirmationActivity.origin");
         updated = extras.getBoolean("org.smartregister.facialrecognition.PhotoConfirmationActivity.updated");
         Log.e(TAG, "init_extras: updated "+updated );
-
     }
 
     private void process_img() {
@@ -108,11 +151,13 @@ public class PhotoConfirmationActivity extends Activity {
         objFace = OpenCameraActivity.faceProc;
 
         Matrix mat = new Matrix();
-        if (!switchCamera) {
-            mat.postRotate(angle == 90 ? 270 : (angle == 180 ? 180 : 0));
+        if (!cameraFront) {
+            Log.e(TAG, "process_img: FALSE" );
+            mat.postRotate(angle == 0 ? 270 : (angle == 180 ? 180 : 0));
             mat.postScale(-1, 1);
             storedBitmap = Bitmap.createBitmap(storedBitmap, 0, 0, storedBitmap.getWidth(), storedBitmap.getHeight(), mat, true);
         } else {
+            Log.e(TAG, "process_img: TRUE" );
             mat.postRotate(angle == 90 ? 90 : (angle == 180 ? 180 : 0));
             storedBitmap = Bitmap.createBitmap(storedBitmap, 0, 0, storedBitmap.getWidth(), storedBitmap.getHeight(), mat, true);
         }
@@ -124,8 +169,7 @@ public class PhotoConfirmationActivity extends Activity {
         boolean setBitmapResult = objFace.setBitmap(storedBitmap);
         faceDatas = objFace.getFaceData();
 
-        Log.e(TAG, "process_img: w "+confirmationView.getWidth() ); //w 1536
-        Log.e(TAG, "process_img: h "+confirmationView.getHeight() ); //h 1872
+        Log.e(TAG, "process_img: confirmationView w/h "+confirmationView.getWidth() +"/"+confirmationView.getHeight() ); // w/h 1536/1872
 
         /**
          * Set Height and Width
@@ -149,10 +193,11 @@ public class PhotoConfirmationActivity extends Activity {
 //        confirmationView.setImageBitmap(tempBitmap);
 
         objFace.normalizeCoordinates(imageViewSurfaceWidth, imageViewSurfaceHeight);
+
         // Set Bitmap Success
         if(setBitmapResult){
 
-            // Face Data Exist
+            // Only if Face Data Exist
             if(faceDatas != null){
 //                Log.e(TAG, "onCreate: faceDatas "+faceDatas.length );
                 rects = new Rect[faceDatas.length];
@@ -213,8 +258,7 @@ public class PhotoConfirmationActivity extends Activity {
 
                         // Face and Rect
 //                        confirmationView.setImageBitmap(mutableBitmap);
-                        Drawable drawable = confirmationView.getDrawable();
-//you should call after the bitmap drawn
+                        Drawable drawable = confirmationView.getDrawable();//you should call after the bitmap drawn
                         Rect bounds = drawable.getBounds();
                         int width = bounds.width();
                         int height = bounds.height();
@@ -235,7 +279,7 @@ public class PhotoConfirmationActivity extends Activity {
                 Toast.makeText(PhotoConfirmationActivity.this, "No Face Detected", Toast.LENGTH_SHORT).show();
                 Intent resultIntent = new Intent();
                 setResult(RESULT_CANCELED, resultIntent);
-                PhotoConfirmationActivity.this.finish();
+//                PhotoConfirmationActivity.this.finish();
             }
 
         } else {
@@ -433,6 +477,5 @@ public class PhotoConfirmationActivity extends Activity {
 //                .child("imageUrl");
 //        ref.setValue(imageEncoded);
     }
-
 
 }

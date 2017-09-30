@@ -11,7 +11,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import org.smartregister.facialrecognition.activity.OpenCameraActivity;
+import org.smartregister.facialrecognition.activities.OpenCameraActivity;
 import org.smartregister.facialrecognition.utils.Tools;
 
 public class MainActivity extends AppCompatActivity {
