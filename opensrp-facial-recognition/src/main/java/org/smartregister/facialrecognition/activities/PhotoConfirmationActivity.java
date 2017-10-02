@@ -17,6 +17,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -72,8 +74,12 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_fr_image_face_confirmation);
+
+        context = getApplicationContext();
 
         init_gui();
 
@@ -87,11 +93,16 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
     }
 
     private void image_proc() {
+        int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
+        int screenHeight = context.getResources().getDisplayMetrics().heightPixels;
+
+        Log.e(TAG, "image_proc: sW x sH "+ screenWidth +" x "+ screenHeight );
         storedBitmap = BitmapFactory.decodeByteArray(data, 0, data.length, null);
 
         Log.e(TAG, "image_proc: "+ switchCamera );
         Matrix mat = new Matrix();
 
+        Log.e(TAG, "image_proc: wxh "+ storedBitmap.getWidth() +" x "+ storedBitmap.getHeight() );
 
         if (!cameraFront) {
             Log.e(TAG, "process_img: Face FRONT "+angle );
@@ -103,12 +114,16 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
             mat.postRotate(angle == 90 ? 90 : (angle == 180 ? 180 : 0));
             storedBitmap = Bitmap.createBitmap(storedBitmap, 0, 0, storedBitmap.getWidth(), storedBitmap.getHeight(), mat, true);
         }
+        Log.e(TAG, "image_proc: wxh "+ storedBitmap.getWidth() +" x "+ storedBitmap.getHeight() );
 
-        confirmationView.setImageBitmap(storedBitmap);
-
+//        confirmationView.setImageBitmap(storedBitmap);
+        Bitmap scaled = Bitmap.createScaledBitmap(storedBitmap, screenWidth,screenHeight, true);
+        confirmationView.setImageBitmap(scaled);
     }
 
     private void init_gui() {
+
+
         // Display New Photo
         confirmationView = (ImageView) findViewById(R.id.iv_confirmationView);
         trashButton = (ImageView) findViewById(R.id.iv_cancel);

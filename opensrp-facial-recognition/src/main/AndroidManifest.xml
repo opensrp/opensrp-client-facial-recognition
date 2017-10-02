@@ -13,9 +13,10 @@
         android:supportsRtl="true">
 
         <activity android:name=".activities.OpenCameraActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen"
             android:screenOrientation="portrait"/>
         <activity android:name=".activities.PhotoConfirmationActivity"
-            android:theme="@style/Theme.AppCompat"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen"
             android:screenOrientation="portrait"/>
     </application>
 

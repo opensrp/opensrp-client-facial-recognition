@@ -100,11 +100,9 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
     public boolean frontFacing;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        t_startCamera = System.nanoTime();
         super.onCreate(savedInstanceState);
 
         initGuiAndAnimation();
-
         initExtras();
         initializeFlags();
         initListeners();
@@ -442,29 +440,19 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
         activityStartedOnce = false;
     }
 
-    /**
-     *
-     */
-    ShutterCallback shutterCallback = new ShutterCallback() {
+    private ShutterCallback shutterCallback = new ShutterCallback() {
         public void onShutter() {
             Log.d(TAG, "onShutter'd");
         }
     };
-    /**
-     *
-     */
-    PictureCallback rawCallback = new PictureCallback() {
+
+    private PictureCallback rawCallback = new PictureCallback() {
         public void onPictureTaken(byte[] data, Camera camera) {
             Log.d(TAG, "onPictureTaken - raw");
         }
     };
 
-
-
-    /**
-     *
-     */
-    PictureCallback jpegCallback = new PictureCallback() {
+    private PictureCallback jpegCallback = new PictureCallback() {
 
         public void onPictureTaken(byte[] data, Camera camera) {
             savePicture(data);
@@ -552,9 +540,7 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
      * Function to Initialize all the image buttons that are there in the view and sets its visibility and image resources here.
      */
     private void initGuiAndAnimation() {
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_fr_main_face);
+        setContentView(R.layout.activity_main);
         display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
 
         animationFadeOut = AnimationUtils.loadAnimation(OpenCameraActivity.this, R.anim.fadeout);
