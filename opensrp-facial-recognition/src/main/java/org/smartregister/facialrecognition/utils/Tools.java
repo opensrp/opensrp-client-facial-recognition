@@ -181,14 +181,10 @@ public class Tools {
         // Mode 1 = Thumbs
 
         // Location use app_dir
-        String libraryPath = androContext.getApplicationContext().getApplicationInfo().dataDir + "/.thumbs";
-        Log.e(TAG, "getOutputMediaFile: "+libraryPath);
-
-        String imgFolder = (mode == 0) ? DrishtiApplication.getAppDir() :
+        String imgFolder = (mode == 0) ?
+                DrishtiApplication.getAppDir() :
                 DrishtiApplication.getAppDir() + File.separator + ".thumbs";
-//        String imgFolder = (mode == 0) ? "OPENSRP_SID":"OPENSRP_SID"+File.separator+".thumbs";
-//        File mediaStorageDir = new File(
-//                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), imgFolder);
+
         File mediaStorageDir = new File(imgFolder);
 
         // Create the storage directory if it does not exist
@@ -269,10 +265,6 @@ public class Tools {
      * @param pixelDensity  Pixel area density
      */
     public static void drawRectFace(Rect rect, Bitmap mutableBitmap, float pixelDensity) {
-
-        Log.e(TAG, "drawRectFace: rect " + rect);
-        Log.e(TAG, "drawRectFace: bitmap " + mutableBitmap);
-        Log.e(TAG, "drawRectFace: pixelDensity " + pixelDensity);
 
         // Extra padding around the faceRects
         rect.set(rect.left -= 20, rect.top -= 20, rect.right += 20, rect.bottom += 20);
@@ -635,17 +627,18 @@ public class Tools {
         setAppContext(context);
 
         // New record
-        if (!updated) {
+        if (!updated && objFace != null) {
 
-//            int result = objFace.addPerson(arrayPossition);
+            int result = objFace.addPerson(arrayPossition);
             faceVector = objFace.serializeRecogntionAlbum();
+
 //            hash = retrieveHash(context);
 //            hash.put(entityId, Integer.toString(result));
 
-            // Save Hash
+            // Save Hash to Device
 //            saveHash(hash, context);
 
-            // Save to buffer
+            // Save to Device buffer
 //            saveAlbum(Arrays.toString(faceVector), context);
 
             String albumBufferArr = Arrays.toString(faceVector);
@@ -657,7 +650,7 @@ public class Tools {
 
             // Reset Album to get Single Face Vector
 
-        } else {
+        } else if(updated && objFace != null){
 
             int update_result = objFace.updatePerson(Integer.parseInt(hash.get(entityId)), 0);
 
@@ -675,6 +668,8 @@ public class Tools {
 
             // TODO : update only face vector
             saveAlbum(Arrays.toString(faceVector), context);
+        } else {
+            Log.e(TAG, "saveAndClose: "+ "Face Not Found" );
         }
 
         new PhotoConfirmationActivity().finish();
@@ -699,12 +694,11 @@ public class Tools {
         if (appContext == null) {
             Log.e(TAG, "saveAndClose: Context NULL" );
 
-            appContext = getAppContext();
+//            appContext = getAppContext();
 //            Intent resultIntent = new Intent(appContext.applicationContext(), origin_class);
-            Intent resultIntent = new Intent(context, origin_class);
-            resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            appContext.applicationContext().startActivity(resultIntent);
-
+//            Intent resultIntent = new Intent(context, origin_class);
+//            resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            appContext.applicationContext().startActivity(resultIntent);
         } else {
             Log.e(TAG, "saveAndClose: Context Opensrp "+ appContext.applicationContext() );
             Log.e(TAG, "saveAndClose: Context Android "+ context );

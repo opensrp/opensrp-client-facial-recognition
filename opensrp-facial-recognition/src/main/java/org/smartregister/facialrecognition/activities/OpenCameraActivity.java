@@ -22,7 +22,6 @@ import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -55,7 +54,6 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
     private static boolean animationPress;
     private static String flashButtonPress;
     private static boolean activityStartedOnce;
-    private static String pathName;
     private static String entityId;
     Camera cameraObj;
     FrameLayout preview;
@@ -73,17 +71,10 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
     double t_stopCamera = 0;
     String str_origin_class;
 
-    private ImageView cameraButton;
-    private ImageView settingsButton;
-    private ImageView switchCameraButton;
-    private ImageView chooseCameraButton;
+    private ImageView cameraButton, switchCameraButton, chooseCameraButton;
     private ImageView menu;
-    private ImageView faceEyesMouthBtn;
-    private ImageView perfectPhotoButton;
-    private ImageView galleryButton;
-    private ImageView flashButton;
-    private int FRONT_CAMERA_INDEX = 1;
-    private int BACK_CAMERA_INDEX = 0;
+    private ImageView settingsButton, faceEyesMouthBtn, perfectPhotoButton, galleryButton, flashButton;
+
     private boolean isDevCompat;
     private int displayAngle;
     private boolean smileFlag;
@@ -96,8 +87,12 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
     private String selectedPersonName;
     private boolean updated;
 
+    // Set Default Facing
+    private int FRONT_CAMERA_INDEX = 1;
+    private int BACK_CAMERA_INDEX = 0;
     private int currentCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT ;
     public boolean frontFacing;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -365,8 +360,6 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
         return true;
     }
 
-    // Start with the camera preview. Open the Camera. See if the feature is supported. Initialize the facial processing instance.
-
     /**
      * @param requestCode
      * @param resultCode
@@ -400,6 +393,68 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
                 break;
             // For the rest don't do anything.
         }
+    }
+
+    /**
+     *
+     */
+    private void initGuiAndAnimation() {
+        setContentView(R.layout.activity_fr_main);
+
+        display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        animationFadeOut = AnimationUtils.loadAnimation(OpenCameraActivity.this, R.anim.fadeout);
+        cameraButton = (ImageView) findViewById(R.id.cameraButton);
+
+        settingsButton = (ImageView) findViewById(R.id.settings);
+        settingsButton.setVisibility(View.INVISIBLE);
+
+        chooseCameraButton = (ImageView) findViewById(R.id.chooseCamera);
+        chooseCameraButton.setImageResource(R.drawable.camera_revert1);
+        chooseCameraButton.setVisibility(View.VISIBLE);
+
+        galleryButton = (ImageView) findViewById(R.id.gallery);
+        galleryButton.setImageResource(R.drawable.ic_collections_white_24dp);
+        galleryButton.setVisibility(View.INVISIBLE);
+
+//        Settings Option Menu
+        menu = (ImageView) findViewById(R.id.menu);
+        menu.setVisibility(View.INVISIBLE);
+
+        switchCameraButton = (ImageView) findViewById(R.id.switchCamera);
+        switchCameraButton.setImageResource(R.drawable.camera_revert2);
+        switchCameraButton.setVisibility(View.INVISIBLE);
+
+        perfectPhotoButton = (ImageView) findViewById(R.id.perfectMode);
+        perfectPhotoButton.setVisibility(View.INVISIBLE);
+        perfectPhotoButton.setImageResource(R.drawable.ic_perfect_mode_off);
+
+        flashButton = (ImageView) findViewById(R.id.flash);
+        flashButton.setVisibility(View.INVISIBLE);
+
+        clientListButton = (ImageView) findViewById(R.id.clientList);
+        clientListButton.setVisibility(View.INVISIBLE);
+        clientListButton.setImageResource(R.drawable.ic_faces);
+
+        // Change the flash image depending on the button that is being pressed.
+        if (flashButtonPress == "FLASH_MODE_OFF") {
+            flashButton.setImageResource(R.drawable.ic_flash_off);
+        } else {
+            flashButton.setImageResource(R.drawable.ic_flash_green);
+        }
+
+        // Detect Eyes and Mouth.
+        if (!faceEyesMouthDetectionPressed) {
+            faceEyesMouthBtn = (ImageView) findViewById(R.id.faceDetection);
+            faceEyesMouthBtn.setImageResource(R.drawable.fr_face_detection);
+        } else {
+            faceEyesMouthBtn = (ImageView) findViewById(R.id.faceDetection);
+            faceEyesMouthBtn.setImageResource(R.drawable.fr_face_detection_on);
+        }
+        faceEyesMouthBtn.setVisibility(View.INVISIBLE);
+
+
+        initializeCheckBoxes();
+
     }
 
     private void initListeners() {
@@ -481,9 +536,6 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
         cameraObj = null;
     }
 
-    /**
-     *
-     */
     private void initCamera() {
 
         // Check to see if the FacialProc feature is supported in the device or no.
@@ -536,73 +588,6 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
 
     }
 
-    /*
-     * Function to Initialize all the image buttons that are there in the view and sets its visibility and image resources here.
-     */
-    private void initGuiAndAnimation() {
-        setContentView(R.layout.activity_main);
-        display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-
-        animationFadeOut = AnimationUtils.loadAnimation(OpenCameraActivity.this, R.anim.fadeout);
-
-        cameraButton = (ImageView) findViewById(R.id.cameraButton);     // Camera Shutter Button
-
-        galleryButton = (ImageView) findViewById(R.id.gallery);
-        galleryButton.setImageResource(R.drawable.ic_collections_white_24dp);
-        galleryButton.setVisibility(View.INVISIBLE);
-
-        settingsButton = (ImageView) findViewById(R.id.settings);
-        settingsButton.setVisibility(View.INVISIBLE);
-
-        chooseCameraButton = (ImageView) findViewById(R.id.chooseCamera);
-        chooseCameraButton.setImageResource(R.drawable.camera_revert1);
-        chooseCameraButton.setVisibility(View.VISIBLE);
-
-//        Settings Option Menu
-
-        menu = (ImageView) findViewById(R.id.menu);
-        menu.setVisibility(View.INVISIBLE);                    // Initially make menu invisible. Make it visible only when the settings button is pressed.
-
-        switchCameraButton = (ImageView) findViewById(R.id.switchCamera);
-        switchCameraButton.setImageResource(R.drawable.camera_revert2);
-        switchCameraButton.setVisibility(View.INVISIBLE);                    // Initially make switchCamera invisible. Make it visible only when the settings button is pressed.
-
-        perfectPhotoButton = (ImageView) findViewById(R.id.perfectMode);
-        perfectPhotoButton.setVisibility(View.INVISIBLE);                    // Initially make perfectMode invisible. Make it visible only when the settings button is pressed.
-        perfectPhotoButton.setImageResource(R.drawable.ic_perfect_mode_off);
-
-        flashButton = (ImageView) findViewById(R.id.flash);
-        flashButton.setVisibility(View.INVISIBLE);                            // Initially make flashButton invisible. Make it visible only when the settings button is pressed.
-
-        clientListButton = (ImageView) findViewById(R.id.clientList);
-        clientListButton.setVisibility(View.INVISIBLE);
-        clientListButton.setImageResource(R.drawable.ic_faces);
-
-        // Change the flash image depending on the button that is being pressed.
-        if (flashButtonPress == "FLASH_MODE_OFF") {
-            flashButton.setImageResource(R.drawable.ic_flash_off);
-        } else {
-            flashButton.setImageResource(R.drawable.ic_flash_green);
-        }
-
-        // Detect Eyes and Mouth.
-        if (!faceEyesMouthDetectionPressed) {
-            faceEyesMouthBtn = (ImageView) findViewById(R.id.faceDetection);
-            faceEyesMouthBtn.setImageResource(R.drawable.fr_face_detection);
-        } else {
-            faceEyesMouthBtn = (ImageView) findViewById(R.id.faceDetection);
-            faceEyesMouthBtn.setImageResource(R.drawable.fr_face_detection_on);
-        }
-        faceEyesMouthBtn.setVisibility(View.INVISIBLE);
-
-
-        initializeCheckBoxes();
-
-    }
-
-    /*
-     * Initialize the Check Box Buttons. Initially it will be invisible. Will be visible only when the photo is to be taken.
-     */
     private void initializeCheckBoxes() {
         smile = (CheckBox) findViewById(R.id.smileCheckBox);
         smile.setVisibility(View.GONE);

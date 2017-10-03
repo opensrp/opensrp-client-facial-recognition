@@ -17,8 +17,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -77,7 +75,7 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_fr_image_face_confirmation);
+        setContentView(R.layout.activity_fr_confirmation);
 
         context = getApplicationContext();
 
@@ -96,25 +94,18 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
         int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
         int screenHeight = context.getResources().getDisplayMetrics().heightPixels;
 
-        Log.e(TAG, "image_proc: sW x sH "+ screenWidth +" x "+ screenHeight );
         storedBitmap = BitmapFactory.decodeByteArray(data, 0, data.length, null);
 
-        Log.e(TAG, "image_proc: "+ switchCamera );
         Matrix mat = new Matrix();
 
-        Log.e(TAG, "image_proc: wxh "+ storedBitmap.getWidth() +" x "+ storedBitmap.getHeight() );
-
         if (!cameraFront) {
-            Log.e(TAG, "process_img: Face FRONT "+angle );
             mat.postRotate(angle == 90 ? 270 : (angle == 180 ? 180 : 0));
 //            mat.postScale(-1, 1);
             storedBitmap = Bitmap.createBitmap(storedBitmap, 0, 0, storedBitmap.getWidth(), storedBitmap.getHeight(), mat, true);
         } else {
-            Log.e(TAG, "process_img: Face BACK" );
             mat.postRotate(angle == 90 ? 90 : (angle == 180 ? 180 : 0));
             storedBitmap = Bitmap.createBitmap(storedBitmap, 0, 0, storedBitmap.getWidth(), storedBitmap.getHeight(), mat, true);
         }
-        Log.e(TAG, "image_proc: wxh "+ storedBitmap.getWidth() +" x "+ storedBitmap.getHeight() );
 
 //        confirmationView.setImageBitmap(storedBitmap);
         Bitmap scaled = Bitmap.createScaledBitmap(storedBitmap, screenWidth,screenHeight, true);
@@ -122,8 +113,6 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
     }
 
     private void init_gui() {
-
-
         // Display New Photo
         confirmationView = (ImageView) findViewById(R.id.iv_confirmationView);
         trashButton = (ImageView) findViewById(R.id.iv_cancel);
@@ -275,15 +264,7 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
 //                        confirmationView.setImageBitmap(mutableBitmap);
                         Drawable drawable = confirmationView.getDrawable();//you should call after the bitmap drawn
                         Rect bounds = drawable.getBounds();
-                        int width = bounds.width();
-                        int height = bounds.height();
-                        int bitmapWidth = drawable.getIntrinsicWidth(); //this is the bitmap's width
-                        int bitmapHeight = drawable.getIntrinsicHeight(); //this is the bitmap's height
 
-                        Log.e(TAG, "process_img: w "+ width );
-                        Log.e(TAG, "process_img: h "+ height );
-                        Log.e(TAG, "process_img: bw "+ bitmapWidth );
-                        Log.e(TAG, "process_img: bh "+ bitmapHeight );
                     } // end if-else mode Identify {True or False}
 
                 } // end for count ic_faces
