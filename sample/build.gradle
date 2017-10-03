@@ -29,6 +29,9 @@ android {
         versionName "1.0"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        ndk{
+            abiFilters "armeabi"
+        }
     }
     buildTypes {
         release {
@@ -76,14 +79,19 @@ repositories {
 }
 
 dependencies {
+    compile('org.smartregister:opensrp-client-core:1.0.0-SNAPSHOT@aar') {
+        transitive = true
+        exclude group: 'com.github.bmelnychuk', module: 'atv'
+    }
+
     compile 'com.android.support:cardview-v7:22.2.1'
     compile 'com.android.support:design:22.2.1'
     compile 'com.android.support:appcompat-v7:22.1.1'
     testCompile 'junit:junit:4.12'
 
 //    compile project(':opensrp-facial-recognition')
-//    compile (name : 'opensrp-facial-recognition-release', ext:'aar')
-    debugCompile compile (name : 'opensrp-facial-recognition-debug', ext:'aar')
+    compile (name : 'opensrp-facial-recognition-debug', ext:'aar')
+//    debugCompile compile (name : 'opensrp-facial-recognition-debug', ext:'aar')
 //    releaseCompile compile (name : 'opensrp-facial-recognition-release', ext:'aar')
 
 }
