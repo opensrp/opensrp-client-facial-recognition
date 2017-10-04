@@ -7,12 +7,22 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import org.smartregister.facialrecognition.FacialRecognitionLibrary;
 import org.smartregister.facialrecognition.activities.OpenCameraActivity;
+import org.smartregister.facialrecognition.domain.ProfileImage;
+import org.smartregister.facialrecognition.repository.ImageRepository;
+import org.smartregister.facialrecognition.sample.util.SampleUtil;
 import org.smartregister.facialrecognition.utils.Tools;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -52,6 +62,33 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        refreshEditFacialLayout();
+    }
+
+    private void refreshEditFacialLayout() {
+        View facialWidget = findViewById(R.id.cv_listfacial);
+
+        ImageRepository ir = FacialRecognitionLibrary.getInstance().facialRepository();
+
+        ArrayList<View.OnClickListener> listeners = new ArrayList<>();
+
+        LinkedHashMap<Long, Pair<String, String>> facialMap = new LinkedHashMap<>();
+
+        List<ProfileImage> imageList = ir.findLast5(SampleUtil.ENTITY_ID);
+        for (int i = 0; i < imageList.size(); i++) {
+            ProfileImage facials = imageList.get(i);
+        }
+
+        if (facialMap.size() > 0){
+            SampleUtil.createFacialWidget(MainActivity.this, facialWidget, facialMap, listeners);
+        }
+
     }
 
     @Override

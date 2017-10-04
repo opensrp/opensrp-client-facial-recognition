@@ -8,14 +8,14 @@
         android:fillColor="@color/yellow"
         android:pathData="@string/path_circle"/>
     <path
-        android:fillColor="@android:color/black"
+        android:fillColor="@android:color/white"
         android:pathData="@string/path_face_left_eye"/>
     <path
-        android:fillColor="@android:color/black"
+        android:fillColor="@android:color/white"
         android:pathData="@string/path_face_right_eye"/>
     <path
         android:name="mouth"
-        android:strokeColor="@android:color/black"
+        android:strokeColor="@android:color/white"
         android:strokeWidth="@integer/stroke_width"
         android:strokeLineCap="round"
         android:pathData="@string/path_face_mouth_happy"/>

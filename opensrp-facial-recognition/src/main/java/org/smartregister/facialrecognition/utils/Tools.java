@@ -2,7 +2,6 @@ package org.smartregister.facialrecognition.utils;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -151,14 +150,14 @@ public class Tools {
         Log.e(TAG, "saveToDb: " + "start");
         // insert into the db local
         if (!updated) {
-            profileImage.setImageid(UUID.randomUUID().toString());
+            profileImage.set_id(Long.valueOf(UUID.randomUUID().toString()));
 //            profileImage.setAnmId(anmId);
-            profileImage.setEntityID(entityId);
+            profileImage.setBaseEntityId(entityId);
             profileImage.setContenttype("jpeg");
             profileImage.setFilepath(absoluteFileName);
             profileImage.setFilecategory("profilepic");
             profileImage.setFilevector(faceVector);
-            profileImage.setSyncStatus(ImageRepository.TYPE_Unsynced);
+            profileImage.setSyncStatus((String) ImageRepository.TYPE_Unsynced);
 
             imageRepo.add(profileImage, entityId);
         } else {
@@ -491,10 +490,10 @@ public class Tools {
 //
 //                // Update Table ImageList on existing record based on entityId where faceVector== null
 //                ProfileImage profileImage = new ProfileImage();
-////                profileImage.setImageid(UUID.randomUUID().toString());
+////                profileImage.set_id(UUID.randomUUID().toString());
 //                // TODO : get anmID from ?
 //                profileImage.setAnmId(anmId);
-//                profileImage.setEntityID(uid);
+//                profileImage.setBaseEntityId(uid);
 ////                profileImage.setFilepath(null);
 ////                profileImage.setFilecategory("profilepic");
 ////                profileImage.setSyncStatus(ImageRepository.TYPE_Synced);
@@ -569,10 +568,10 @@ public class Tools {
 
                 // Update Table ImageList on existing record based on entityId where faceVector== null
                 ProfileImage profileImage = new ProfileImage();
-//                profileImage.setImageid(UUID.randomUUID().toString());
+//                profileImage.set_id(UUID.randomUUID().toString());
                 // TODO : get anmID from ?
                 profileImage.setAnmId(anmId);
-                profileImage.setEntityID(uid);
+                profileImage.setBaseEntityId(uid);
 //                profileImage.setFilepath(null);
 //                profileImage.setFilecategory("profilepic");
 //                profileImage.setSyncStatus(ImageRepository.TYPE_Synced);
@@ -738,7 +737,7 @@ public class Tools {
 //                    vectorFace[0] = String.valueOf((i%128) % 256 - 128);
 
                     albumBuffered = ArrayUtils.addAll(albumBuffered, vectorFace);
-                    hash.put(profileImage.getEntityID(), String.valueOf(i));
+                    hash.put(profileImage.getBaseEntityId(), String.valueOf(i));
 
                 } else {
                     Log.e(TAG, "setVectorsBuffered: Profile Image Null");
@@ -824,14 +823,14 @@ public class Tools {
                     // insert into the db local
                     ProfileImage profileImage = new ProfileImage();
 
-                    profileImage.setImageid(UUID.randomUUID().toString());
+                    profileImage.set_id(Long.valueOf(UUID.randomUUID().toString()));
                     profileImage.setAnmId(anmId);
-                    profileImage.setEntityID(entityId);
+                    profileImage.setBaseEntityId(entityId);
                     profileImage.setContenttype("jpeg");
                     profileImage.setFilepath(absoluteFileName);
                     profileImage.setFilecategory("profilepic");
                     profileImage.setFilevector(Arrays.toString(faceVector));
-                    profileImage.setSyncStatus(ImageRepository.TYPE_Unsynced);
+                    profileImage.setSyncStatus(String.valueOf(ImageRepository.TYPE_Unsynced));
 
                     imageRepo.add(profileImage, entityId);
                 }

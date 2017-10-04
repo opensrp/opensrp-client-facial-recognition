@@ -12,6 +12,7 @@ import android.graphics.drawable.AnimationDrawable;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
+import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.ShutterCallback;
 import android.hardware.Camera.Size;
 import android.net.Uri;
@@ -42,7 +43,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class OpenCameraActivity extends Activity implements Camera.PreviewCallback {
+public class OpenCameraActivity extends Activity implements PreviewCallback {
 
     private static final String TAG = OpenCameraActivity.class.getSimpleName();
     public static FacialProcessing faceProc;
@@ -71,7 +72,7 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
     double t_stopCamera = 0;
     String str_origin_class;
 
-    private ImageView cameraButton, switchCameraButton, chooseCameraButton;
+    private ImageView cameraButton, chooseCameraButton;
     private ImageView menu;
     private ImageView settingsButton, faceEyesMouthBtn, perfectPhotoButton, galleryButton, flashButton;
 
@@ -97,13 +98,15 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // GUI and Initial value
         initGuiAndAnimation();
         initExtras();
         initializeFlags();
         initListeners();
         initCamera();
-        Tools.loadAlbum(getApplicationContext());
 
+        // Load Vector Data
+        Tools.loadAlbum(getApplicationContext());
         hash = OpenCameraActivity.retrieveHash(getApplicationContext());
 
     }
@@ -395,9 +398,6 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
         }
     }
 
-    /**
-     *
-     */
     private void initGuiAndAnimation() {
         setContentView(R.layout.activity_fr_main);
 
@@ -409,7 +409,11 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
         settingsButton.setVisibility(View.INVISIBLE);
 
         chooseCameraButton = (ImageView) findViewById(R.id.chooseCamera);
-        chooseCameraButton.setImageResource(R.drawable.camera_revert1);
+        chooseCameraButton.setImageResource(
+                (currentCameraId == Camera.CameraInfo.CAMERA_FACING_BACK)?
+                        R.drawable.camera_revert1:
+                        R.drawable.camera_revert2
+        );
         chooseCameraButton.setVisibility(View.VISIBLE);
 
         galleryButton = (ImageView) findViewById(R.id.gallery);
@@ -419,10 +423,6 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
 //        Settings Option Menu
         menu = (ImageView) findViewById(R.id.menu);
         menu.setVisibility(View.INVISIBLE);
-
-        switchCameraButton = (ImageView) findViewById(R.id.switchCamera);
-        switchCameraButton.setImageResource(R.drawable.camera_revert2);
-        switchCameraButton.setVisibility(View.INVISIBLE);
 
         perfectPhotoButton = (ImageView) findViewById(R.id.perfectMode);
         perfectPhotoButton.setVisibility(View.INVISIBLE);
@@ -477,9 +477,6 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
         str_origin_class = extras.getString("org.smartregister.facialrecognition.PhotoConfirmationActivity.origin");
     }
 
-    /**
-     *
-     */
     private void initializeFlags() {
         isDevCompat = false;
         settingsButtonPress = false;
@@ -617,24 +614,23 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
             @Override
             public void onClick(View v) {
 
-                if (!switchCamera) {
+                if (currentCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT) {
                     stopCamera();
                     chooseCameraButton.setImageResource(R.drawable.camera_revert1);
                     switchCamera = true;
+                    currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
                     initCamera();
                 } else {
                     stopCamera();
                     chooseCameraButton.setImageResource(R.drawable.camera_revert2);
                     switchCamera = false;
+                    currentCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
                     initCamera();
                 }
             }
         });
     }
 
-    /*
-     * Function to detect the on click listener for the GALLERY button.
-     */
     private void galleryActionListener() {
         galleryButton.setOnClickListener(new OnClickListener() {
 
@@ -648,16 +644,17 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
         });
     }
 
-    /*
-     * Function to detect the on click listener for the camera shutter button.
-     */
     private void cameraActionListener() {
 
-        Log.e(TAG, "cameraActionListener: "+ numFaces );
         cameraButton.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
+//                if (arg0.getAction() == MotionEvent.ACTION_DOWN) {
+//                    confirmButton.setImageResource(R.drawable.ic_confirm_highlighted_24dp);
+//                } else if (arg1.getAction() == MotionEvent.ACTION_UP) {
+//                    confirmButton.setImageResource(R.drawable.ic_confirm_white_24dp);
+//                }
                 if (numFaces != -1) {
                     if (!perfectModeButtonPress) {
                         cameraObj.autoFocus(new Camera.AutoFocusCallback() {
@@ -716,14 +713,14 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
 
                     }
                     menu.setVisibility(View.VISIBLE);
-                    switchCameraButton.setVisibility(View.VISIBLE);
+                    chooseCameraButton.setVisibility(View.VISIBLE);
                     if (switchCamera)// If facing back camera then only make it visible or else dont.
                         flashButton.setVisibility(View.VISIBLE);
                     settingsButtonPress = true;
                 } else {
                     faceEyesMouthBtn.setVisibility(View.INVISIBLE);
                     menu.setVisibility(View.INVISIBLE);
-                    switchCameraButton.setVisibility(View.INVISIBLE);
+                    chooseCameraButton.setVisibility(View.INVISIBLE);
                     perfectPhotoButton.setVisibility(View.INVISIBLE);
                     flashButton.setVisibility(View.INVISIBLE);
                     settingsButtonPress = false;
@@ -844,7 +841,7 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
             perfectPhotoButton.startAnimation(animationFadeOut);
         }
         menu.startAnimation(animationFadeOut);
-        switchCameraButton.startAnimation(animationFadeOut);
+        chooseCameraButton.startAnimation(animationFadeOut);
         clientListButton.startAnimation(animationFadeOut);
 
         if (switchCamera) {
@@ -852,7 +849,7 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
         }
         faceEyesMouthBtn.setVisibility(View.GONE);
         menu.setVisibility(View.GONE);
-        switchCameraButton.setVisibility(View.GONE);
+        chooseCameraButton.setVisibility(View.GONE);
         perfectPhotoButton.setVisibility(View.GONE);
         flashButton.setVisibility(View.GONE);
 

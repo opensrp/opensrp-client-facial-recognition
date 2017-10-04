@@ -29,9 +29,27 @@ public class SampleRepository extends Repository {
         super.onCreate(database);
 
         ImageRepository.createTable(database);
+//        onUpgrade(database, 1, 2);
 
     }
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        Log.w(SampleRepository.class.getName(),
+                "Upgrading database from version " + oldVersion + " to "
+                        + newVersion + ", which will destroy all old data");
 
+        int upgradeTo = oldVersion + 1;
+        while (upgradeTo <= newVersion) {
+            switch (upgradeTo) {
+                case 2:
+//                    upgradeToVersion2(db);
+                    break;
+                default:
+                    break;
+            }
+            upgradeTo++;
+        }
+    }
     @Override
     public synchronized SQLiteDatabase getReadableDatabase() {
         try {

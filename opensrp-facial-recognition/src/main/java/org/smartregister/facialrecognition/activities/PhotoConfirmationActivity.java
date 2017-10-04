@@ -331,9 +331,6 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
 
     }
 
-    /**
-     *
-     */
     private void buttonJob() {
         // If approved then save the image and close.
         confirmButton.setOnClickListener(new View.OnClickListener() {

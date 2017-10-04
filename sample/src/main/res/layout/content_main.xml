@@ -30,7 +30,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_margin="@dimen/fab_margin"
-            android:src="@android:drawable/ic_menu_camera" />
+            android:src="@android:drawable/ic_menu_camera"
+            app:backgroundTint="@color/alert_in_progress_blue" />
 
     </android.support.v7.widget.CardView>
 

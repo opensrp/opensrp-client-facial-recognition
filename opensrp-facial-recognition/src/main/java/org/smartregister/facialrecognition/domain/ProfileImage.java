@@ -5,33 +5,43 @@ package org.smartregister.facialrecognition.domain;
  */
 
 public class ProfileImage {
-    private String imageid;
+    private Long _id;
     private String anmId;
-    private String entityID;
+    private String baseEntityId;
     private String contenttype;
     private String filepath;
     private String filecategory;
-    private String filevector;
-    private Object syncStatus;
+    private String faceVector;
+    private String syncStatus;
+    private Long createdAt;
+    private Long updatedAt;
 
-    public ProfileImage(){
+
+
+    public ProfileImage(Long _id, String baseEntityId, String faceVector, String syncStatus, long createdAt, long updatedAt) {
+        this._id = _id;
+        this.baseEntityId = baseEntityId;
+        this.faceVector = faceVector;
+        this.syncStatus = syncStatus;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+    public ProfileImage() {
 
     }
 
-    public ProfileImage(String string, String string1, String string2, String string3, String string4, String string5, String string6, String string7) {
 
-    }
-
-    public void setImageid(String imageid) {
-        this.imageid = imageid;
+    public void set_id(Long _id) {
+        this._id = _id;
     }
 
     public void setAnmId(String anmId) {
         this.anmId = anmId;
     }
 
-    public void setEntityID(String entityID) {
-        this.entityID = entityID;
+    public void setBaseEntityId(String baseEntityId) {
+        this.baseEntityId = baseEntityId;
     }
 
     public void setContenttype(String contenttype) {
@@ -46,19 +56,19 @@ public class ProfileImage {
         this.filecategory = filecategory;
     }
 
-    public void setFilevector(String filevector) {
-        this.filevector = filevector;
+    public void setFilevector(String faceVector) {
+        this.faceVector = faceVector;
     }
 
-    public void setSyncStatus(Object syncStatus) {
+    public void setSyncStatus(String syncStatus) {
         this.syncStatus = syncStatus;
     }
 
     public String getFilevector() {
-        return filevector;
+        return faceVector;
     }
 
-    public String getEntityID() {
-        return entityID;
+    public String getBaseEntityId() {
+        return baseEntityId;
     }
 }
