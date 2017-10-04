@@ -7,5 +7,7 @@
 /build
 /captures
 .externalNativeBuild
+/.idea/
+.idea/
 .idea/libraries
 .idea/workspace.xml
