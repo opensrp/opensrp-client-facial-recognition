@@ -9,3 +9,5 @@
 .externalNativeBuild
 .idea/libraries
 .idea/workspace.xml
+.idea/
+/.idea/
