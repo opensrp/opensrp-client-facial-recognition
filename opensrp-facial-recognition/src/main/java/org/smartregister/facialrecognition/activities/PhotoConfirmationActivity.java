@@ -25,6 +25,7 @@ import com.qualcomm.snapdragon.sdk.face.FaceData;
 import com.qualcomm.snapdragon.sdk.face.FacialProcessing;
 
 import org.smartregister.facialrecognition.R;
+import org.smartregister.facialrecognition.util.BitmapUtil;
 import org.smartregister.facialrecognition.utils.FaceConstants;
 import org.smartregister.facialrecognition.utils.Tools;
 
@@ -87,7 +88,7 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
 
         image_proc();
 
-        buttonJob();
+        initListeners();
     }
 
     private void image_proc() {
@@ -331,7 +332,7 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
 
     }
 
-    private void buttonJob() {
+    private void initListeners() {
         // If approved then save the image and close.
         confirmButton.setOnClickListener(new View.OnClickListener() {
 
@@ -340,9 +341,8 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
 
                 if (!identifyPerson) {
 
-                    Log.e(TAG, "onClick: class origin "+str_origin_class );
-
-                    Tools.saveAndClose(getApplicationContext(), entityId, updated, objFace, arrayPossition, storedBitmap, str_origin_class);
+//                    Tools.saveAndClose(getApplicationContext(), entityId, updated, objFace, arrayPossition, storedBitmap, str_origin_class);
+                    BitmapUtil.saveAndClose(getApplicationContext(), entityId, updated, objFace, arrayPossition, storedBitmap, str_origin_class);
 
                     // Back To Detail Activity
                     Intent i = new Intent();
@@ -351,12 +351,7 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
 
                 } else {
                     Log.e(TAG, "onClick: not identify ");
-                    // TODO: detect origin class
-//                    KIDetailActivity.kiclient = (CommonPersonObjectClient) arg0.getTag();
-//                    Log.e(TAG, "onClick: " + KIDetailActivity.kiclient);
-//                    Intent intent = new Intent(PhotoConfirmationActivity.this,KIDetailActivity.class);
                     Log.e(TAG, "onClick: " + selectedPersonName);
-//                    startActivity(intent);
                 }
             }
 

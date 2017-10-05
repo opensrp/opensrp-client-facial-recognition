@@ -18,10 +18,11 @@
         android:layout_height="50dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:layout_marginBottom="40dp"
+        android:layout_marginBottom="30dp"
         android:layout_marginLeft="55dp"
         android:background="@drawable/ic_trash_delete"
         tools:ignore="ContentDescription,RtlHardcoded" />
+
     <ImageView
         android:id="@+id/iv_approve"
         android:layout_width="50dp"
@@ -29,10 +30,12 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignTop="@id/iv_cancel"
-        android:layout_marginBottom="40dp"
+        android:layout_marginBottom="30dp"
         android:layout_marginRight="55dp"
         android:background="@drawable/ic_checked_white"
         tools:ignore="ContentDescription,RtlHardcoded" />
+
+
 
 
 </RelativeLayout>

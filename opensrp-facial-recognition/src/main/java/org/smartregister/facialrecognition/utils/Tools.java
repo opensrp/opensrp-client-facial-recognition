@@ -150,7 +150,7 @@ public class Tools {
         Log.e(TAG, "saveToDb: " + "start");
         // insert into the db local
         if (!updated) {
-            profileImage.set_id(Long.valueOf(UUID.randomUUID().toString()));
+            profileImage.setId(Long.valueOf(UUID.randomUUID().toString()));
 //            profileImage.setAnmId(anmId);
             profileImage.setBaseEntityId(entityId);
             profileImage.setContenttype("jpeg");
@@ -490,7 +490,7 @@ public class Tools {
 //
 //                // Update Table ImageList on existing record based on entityId where faceVector== null
 //                ProfileImage profileImage = new ProfileImage();
-////                profileImage.set_id(UUID.randomUUID().toString());
+////                profileImage.setId(UUID.randomUUID().toString());
 //                // TODO : get anmID from ?
 //                profileImage.setAnmId(anmId);
 //                profileImage.setBaseEntityId(uid);
@@ -568,9 +568,9 @@ public class Tools {
 
                 // Update Table ImageList on existing record based on entityId where faceVector== null
                 ProfileImage profileImage = new ProfileImage();
-//                profileImage.set_id(UUID.randomUUID().toString());
+//                profileImage.setId(UUID.randomUUID().toString());
                 // TODO : get anmID from ?
-                profileImage.setAnmId(anmId);
+//                profileImage.setAnmId(anmId);
                 profileImage.setBaseEntityId(uid);
 //                profileImage.setFilepath(null);
 //                profileImage.setFilecategory("profilepic");
@@ -823,8 +823,8 @@ public class Tools {
                     // insert into the db local
                     ProfileImage profileImage = new ProfileImage();
 
-                    profileImage.set_id(Long.valueOf(UUID.randomUUID().toString()));
-                    profileImage.setAnmId(anmId);
+                    profileImage.setId(Long.valueOf(UUID.randomUUID().toString()));
+//                    profileImage.setAnmId(anmId);
                     profileImage.setBaseEntityId(entityId);
                     profileImage.setContenttype("jpeg");
                     profileImage.setFilepath(absoluteFileName);
