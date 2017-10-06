@@ -1,6 +1,5 @@
-package org.smartregister.facialrecognition.activity;
+package org.smartregister.facialrecognition.activities;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -8,31 +7,29 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
+import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.ShutterCallback;
 import android.hardware.Camera.Size;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.qualcomm.snapdragon.sdk.face.FaceData;
 import com.qualcomm.snapdragon.sdk.face.FacialProcessing;
@@ -42,17 +39,11 @@ import org.smartregister.facialrecognition.R;
 import org.smartregister.facialrecognition.utils.FaceConstants;
 import org.smartregister.facialrecognition.utils.Tools;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class OpenCameraActivity extends Activity implements Camera.PreviewCallback {
+public class OpenCameraActivity extends Activity implements PreviewCallback {
 
     private static final String TAG = OpenCameraActivity.class.getSimpleName();
     public static FacialProcessing faceProc;
@@ -64,7 +55,6 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
     private static boolean animationPress;
     private static String flashButtonPress;
     private static boolean activityStartedOnce;
-    private static String pathName;
     private static String entityId;
     Camera cameraObj;
     FrameLayout preview;
@@ -81,33 +71,11 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
     long t_startCamera = 0;
     double t_stopCamera = 0;
     String str_origin_class;
-    /**
-     *
-     */
-    ShutterCallback shutterCallback = new ShutterCallback() {
-        public void onShutter() {
-            Log.d(TAG, "onShutter'd");
-        }
-    };
-    /**
-     *
-     */
-    PictureCallback rawCallback = new PictureCallback() {
-        public void onPictureTaken(byte[] data, Camera camera) {
-            Log.d(TAG, "onPictureTaken - raw");
-        }
-    };
-    private ImageView cameraButton;
-    private ImageView settingsButton;
-    private ImageView switchCameraButton;
-    private ImageView chooseCameraButton;
+
+    private ImageView cameraButton, chooseCameraButton;
     private ImageView menu;
-    private ImageView faceEyesMouthBtn;
-    private ImageView perfectPhotoButton;
-    private ImageView galleryButton;
-    private ImageView flashButton;
-    private int FRONT_CAMERA_INDEX = 1;
-    private int BACK_CAMERA_INDEX = 0;
+    private ImageView settingsButton, faceEyesMouthBtn, perfectPhotoButton, galleryButton, flashButton;
+
     private boolean isDevCompat;
     private int displayAngle;
     private boolean smileFlag;
@@ -119,139 +87,27 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
     private ImageView clientListButton;
     private String selectedPersonName;
     private boolean updated;
-    /**
-     *
-     */
-    PictureCallback jpegCallback = new PictureCallback() {
-        public void onPictureTaken(byte[] data, Camera camera) {
-            savePicture(data);
-        }
 
-    };
-
-    /*
-     * Function to write an image to the file system for future viewing.
-     */
-    public static boolean WritePictureToFile(Context context, Bitmap bitmap) {
-        File pictureFile = getOutputMediaFile();
-        if (pictureFile == null) {
-            Log.e(TAG, "Error creating media file, check storage permissions ");
-            return false;
-        }
-
-        try {
-            FileOutputStream fos = new FileOutputStream(pictureFile);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-            fos.close();
-            Log.e(TAG, "Wrote image to " + pictureFile);
-
-            MediaScannerConnection.scanFile(context, new String[]{pictureFile.toString()}, null, new MediaScannerConnection.OnScanCompletedListener() {
-                public void onScanCompleted(String path, Uri uri) {
-                    Log.i("ExternalStorage", "Scanned " + path + ":");
-                    Log.i("ExternalStorage", "-> uri=" + uri);
-                }
-            });
-            pathName = pictureFile.toString();
-            Log.e(TAG, "Path Name = " + pathName);
-            return true;
-
-        } catch (FileNotFoundException e) {
-            Log.d(TAG, "File not found: " + e.getMessage());
-        } catch (IOException e) {
-            Log.d(TAG, "Error accessing file: " + e.getMessage());
-        }
-        return false;
-    }
-
-    /**
-     * Create a File for saving an image or video
-     */
-    @SuppressLint("SimpleDateFormat")
-    private static File getOutputMediaFile() {
-        // To be safe, you should check that the SDCard is mounted
-        // using Environment.getExternalStorageState() before doing this.
-
-        File mediaStorageDir = new File(
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "OPENSRP_SID");
-
-        // This location works best if you want the created images to be shared
-        // between applications and persist after your app has been uninstalled.
-
-        // Create the storage directory if it does not exist
-        if (!mediaStorageDir.exists()) {
-            Log.e(TAG, "failed to find directory " + mediaStorageDir.getAbsolutePath());
-            if (!mediaStorageDir.mkdirs()) {
-                Log.e(TAG, "failed to create directory " + mediaStorageDir.getAbsolutePath());
-                return null;
-            }
-        }
-
-        // Create a media file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-//        String filename = entity);
-        File mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_" + entityId + ".jpg");
-        return mediaFile;
-    }
-
-    /**
-     * Get Client List
-     *
-     * @param context
-     * @return
-     */
-    public static HashMap<String, String> retrieveHash(Context context) {
-        SharedPreferences settings = context.getSharedPreferences(FaceConstants.HASH_NAME, 0);
-        HashMap<String, String> hash = new HashMap<>();
-        hash.putAll((Map<? extends String, ? extends String>) settings.getAll());
-        return hash;
-    }
+    // Set Default Facing
+    private int FRONT_CAMERA_INDEX = 1;
+    private int BACK_CAMERA_INDEX = 0;
+    private int currentCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT ;
+    public boolean frontFacing;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        t_startCamera = System.nanoTime();
         super.onCreate(savedInstanceState);
 
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-        setContentView(R.layout.activity_fr_main_face);
-
-        Bundle extras = getIntent().getExtras();
-        updated = extras.getBoolean("org.smartregister.facialrecognition.OpenCameraActivity.updated");
-        entityId = extras.getString("org.smartregister.facialrecognition.PhotoConfirmationActivity.id");
-        identifyPerson = extras.getBoolean("org.smartregister.facialrecognition.PhotoConfirmationActivity.identify");
-        str_origin_class = extras.getString("org.smartregister.facialrecognition.PhotoConfirmationActivity.origin");
-
+        // GUI and Initial value
+        initGuiAndAnimation();
+        initExtras();
         initializeFlags();
-
-        initializeCheckBoxes();
-
-        animationFadeOut = AnimationUtils.loadAnimation(OpenCameraActivity.this, R.anim.fadeout);
-
-        initializeImageButtons();
-
-        hash = OpenCameraActivity.retrieveHash(getApplicationContext());
-
-        settingsButtonPress = false;
-
-        settingsButton.setVisibility(View.INVISIBLE);
-
-        chooseCameraActionListener();
-        galleryActionListener();
-        cameraActionListener();
-//        settingsActionListener();
-        faceDetectionActionListener();
-        perfectPhotoActionListener();
-        flashActionListener();
-
-        clientListActionListener();
-
+        initListeners();
         initCamera();
 
-        display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-
+        // Load Vector Data
         Tools.loadAlbum(getApplicationContext());
+        hash = OpenCameraActivity.retrieveHash(getApplicationContext());
 
     }
 
@@ -507,8 +363,6 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
         return true;
     }
 
-    // Start with the camera preview. Open the Camera. See if the feature is supported. Initialize the facial processing instance.
-
     /**
      * @param requestCode
      * @param resultCode
@@ -544,9 +398,85 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
         }
     }
 
-    /**
-     *
-     */
+    private void initGuiAndAnimation() {
+        setContentView(R.layout.activity_fr_main);
+
+        display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        animationFadeOut = AnimationUtils.loadAnimation(OpenCameraActivity.this, R.anim.fadeout);
+        cameraButton = (ImageView) findViewById(R.id.cameraButton);
+
+        settingsButton = (ImageView) findViewById(R.id.settings);
+        settingsButton.setVisibility(View.INVISIBLE);
+
+        chooseCameraButton = (ImageView) findViewById(R.id.chooseCamera);
+        chooseCameraButton.setImageResource(
+                (currentCameraId == Camera.CameraInfo.CAMERA_FACING_BACK)?
+                        R.drawable.camera_revert1:
+                        R.drawable.camera_revert2
+        );
+        chooseCameraButton.setVisibility(View.VISIBLE);
+
+        galleryButton = (ImageView) findViewById(R.id.gallery);
+        galleryButton.setImageResource(R.drawable.ic_collections_white_24dp);
+        galleryButton.setVisibility(View.INVISIBLE);
+
+//        Settings Option Menu
+        menu = (ImageView) findViewById(R.id.menu);
+        menu.setVisibility(View.INVISIBLE);
+
+        perfectPhotoButton = (ImageView) findViewById(R.id.perfectMode);
+        perfectPhotoButton.setVisibility(View.INVISIBLE);
+        perfectPhotoButton.setImageResource(R.drawable.ic_perfect_mode_off);
+
+        flashButton = (ImageView) findViewById(R.id.flash);
+        flashButton.setVisibility(View.INVISIBLE);
+
+        clientListButton = (ImageView) findViewById(R.id.clientList);
+        clientListButton.setVisibility(View.INVISIBLE);
+        clientListButton.setImageResource(R.drawable.ic_faces);
+
+        // Change the flash image depending on the button that is being pressed.
+        if (flashButtonPress == "FLASH_MODE_OFF") {
+            flashButton.setImageResource(R.drawable.ic_flash_off);
+        } else {
+            flashButton.setImageResource(R.drawable.ic_flash_green);
+        }
+
+        // Detect Eyes and Mouth.
+        if (!faceEyesMouthDetectionPressed) {
+            faceEyesMouthBtn = (ImageView) findViewById(R.id.faceDetection);
+            faceEyesMouthBtn.setImageResource(R.drawable.fr_face_detection);
+        } else {
+            faceEyesMouthBtn = (ImageView) findViewById(R.id.faceDetection);
+            faceEyesMouthBtn.setImageResource(R.drawable.fr_face_detection_on);
+        }
+        faceEyesMouthBtn.setVisibility(View.INVISIBLE);
+
+
+        initializeCheckBoxes();
+
+    }
+
+    private void initListeners() {
+        chooseCameraActionListener();
+        galleryActionListener();
+        cameraActionListener();
+//        settingsActionListener();
+        faceDetectionActionListener();
+        perfectPhotoActionListener();
+        flashActionListener();
+
+        clientListActionListener();
+    }
+
+    private void initExtras() {
+        Bundle extras = getIntent().getExtras();
+        updated = extras.getBoolean("org.smartregister.facialrecognition.OpenCameraActivity.updated");
+        entityId = extras.getString("org.smartregister.facialrecognition.PhotoConfirmationActivity.id");
+        identifyPerson = extras.getBoolean("org.smartregister.facialrecognition.PhotoConfirmationActivity.identify");
+        str_origin_class = extras.getString("org.smartregister.facialrecognition.PhotoConfirmationActivity.origin");
+    }
+
     private void initializeFlags() {
         isDevCompat = false;
         settingsButtonPress = false;
@@ -562,7 +492,32 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
         activityStartedOnce = false;
     }
 
-    // Stop the camera preview. release the camera. Release the FacialActivity Processing object. Make the objects null.
+    private ShutterCallback shutterCallback = new ShutterCallback() {
+        public void onShutter() {
+            Log.d(TAG, "onShutter'd");
+        }
+    };
+
+    private PictureCallback rawCallback = new PictureCallback() {
+        public void onPictureTaken(byte[] data, Camera camera) {
+            Log.d(TAG, "onPictureTaken - raw");
+        }
+    };
+
+    private PictureCallback jpegCallback = new PictureCallback() {
+
+        public void onPictureTaken(byte[] data, Camera camera) {
+            savePicture(data);
+            if (currentCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                frontFacing = true;
+            }
+        }
+
+    };
+
+    // Stop the camera preview. release the camera.
+    // Release the FacialActivity Processing object.
+    // Make the objects null.
     private void stopCamera() {
 
         if (cameraObj != null) {
@@ -578,9 +533,6 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
         cameraObj = null;
     }
 
-    /**
-     *
-     */
     private void initCamera() {
 
         // Check to see if the FacialProc feature is supported in the device or no.
@@ -591,9 +543,6 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
             // Calling the FacialActivity Processing Constructor.
             faceProc = FacialProcessing.getInstance();
             faceProc.setRecognitionConfidence(Tools.CONFIDENCE_VALUE);
-
-//            Tools tools = new Tools();
-//            Tools.loadAlbum(getApplicationContext());
 
         } else if (!isDevCompat && !activityStartedOnce) {
             Log.e(TAG, "Feature is NOT supported");
@@ -636,63 +585,6 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
 
     }
 
-    /*
-     * Function to Initialize all the image buttons that are there in the view and sets its visibility and image resources here.
-     */
-    private void initializeImageButtons() {
-        cameraButton = (ImageView) findViewById(R.id.cameraButton);     // Camera Shutter Button
-
-        galleryButton = (ImageView) findViewById(R.id.gallery);
-        galleryButton.setImageResource(R.drawable.ic_collections_white_24dp);
-        galleryButton.setVisibility(View.INVISIBLE);
-
-        settingsButton = (ImageView) findViewById(R.id.settings);
-
-        chooseCameraButton = (ImageView) findViewById(R.id.chooseCamera);
-        chooseCameraButton.setImageResource(R.drawable.camera_revert1);
-        chooseCameraButton.setVisibility(View.VISIBLE);
-
-//        Settings Option Menu
-
-        menu = (ImageView) findViewById(R.id.menu);
-        menu.setVisibility(View.INVISIBLE);                    // Initially make menu invisible. Make it visible only when the settings button is pressed.
-
-        switchCameraButton = (ImageView) findViewById(R.id.switchCamera);
-        switchCameraButton.setImageResource(R.drawable.camera_revert2);
-        switchCameraButton.setVisibility(View.INVISIBLE);                    // Initially make switchCamera invisible. Make it visible only when the settings button is pressed.
-
-        perfectPhotoButton = (ImageView) findViewById(R.id.perfectMode);
-        perfectPhotoButton.setVisibility(View.INVISIBLE);                    // Initially make perfectMode invisible. Make it visible only when the settings button is pressed.
-        perfectPhotoButton.setImageResource(R.drawable.ic_perfect_mode_off);
-
-        flashButton = (ImageView) findViewById(R.id.flash);
-        flashButton.setVisibility(View.INVISIBLE);                            // Initially make flashButton invisible. Make it visible only when the settings button is pressed.
-
-        clientListButton = (ImageView) findViewById(R.id.clientList);
-        clientListButton.setVisibility(View.INVISIBLE);
-        clientListButton.setImageResource(R.drawable.ic_faces);
-
-        // Change the flash image depending on the button that is being pressed.
-        if (flashButtonPress == "FLASH_MODE_OFF") {
-            flashButton.setImageResource(R.drawable.ic_flash_off);
-        } else {
-            flashButton.setImageResource(R.drawable.ic_flash_green);
-        }
-
-        // Detect Eyes and Mouth.
-        if (!faceEyesMouthDetectionPressed) {
-            faceEyesMouthBtn = (ImageView) findViewById(R.id.faceDetection);
-            faceEyesMouthBtn.setImageResource(R.drawable.fr_face_detection);
-        } else {
-            faceEyesMouthBtn = (ImageView) findViewById(R.id.faceDetection);
-            faceEyesMouthBtn.setImageResource(R.drawable.fr_face_detection_on);
-        }
-        faceEyesMouthBtn.setVisibility(View.INVISIBLE);
-    }
-
-    /*
-     * Initialize the Check Box Buttons. Initially it will be invisible. Will be visible only when the photo is to be taken.
-     */
     private void initializeCheckBoxes() {
         smile = (CheckBox) findViewById(R.id.smileCheckBox);
         smile.setVisibility(View.GONE);
@@ -722,53 +614,23 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
             @Override
             public void onClick(View v) {
 
-                if (!switchCamera) {
+                if (currentCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT) {
                     stopCamera();
                     chooseCameraButton.setImageResource(R.drawable.camera_revert1);
                     switchCamera = true;
+                    currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
                     initCamera();
                 } else {
                     stopCamera();
                     chooseCameraButton.setImageResource(R.drawable.camera_revert2);
                     switchCamera = false;
+                    currentCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
                     initCamera();
                 }
             }
         });
     }
 
-    /*
-     * Function to detect the on click listener for the switch camera button.
-     */
-    private void switchCameraActionListener() {
-        switchCameraButton.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View arg0) {
-
-                if (!switchCamera)        // Flag to check if the camera is switched to front or back.
-                {
-                    switchCameraButton.setImageResource(R.drawable.camera_revert1);
-                    stopCamera();
-                    switchCamera = true;
-                    settingsButtonPress = false;
-                    initCamera();
-                    fadeOutAnimation();
-                } else {
-                    switchCameraButton.setImageResource(R.drawable.camera_revert2);
-                    stopCamera();
-                    switchCamera = false;
-                    settingsButtonPress = false;
-                    initCamera();
-                    fadeOutAnimation();
-                }
-            }
-        });
-    }
-
-    /*
-     * Function to detect the on click listener for the GALLERY button.
-     */
     private void galleryActionListener() {
         galleryButton.setOnClickListener(new OnClickListener() {
 
@@ -782,16 +644,18 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
         });
     }
 
-    /*
-     * Function to detect the on click listener for the camera shutter button.
-     */
     private void cameraActionListener() {
+
         cameraButton.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
-
-                if (numFaces != 0) {
+//                if (arg0.getAction() == MotionEvent.ACTION_DOWN) {
+//                    confirmButton.setImageResource(R.drawable.ic_confirm_highlighted_24dp);
+//                } else if (arg1.getAction() == MotionEvent.ACTION_UP) {
+//                    confirmButton.setImageResource(R.drawable.ic_confirm_white_24dp);
+//                }
+                if (numFaces != -1) {
                     if (!perfectModeButtonPress) {
                         cameraObj.autoFocus(new Camera.AutoFocusCallback() {
                             @Override
@@ -825,6 +689,8 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
                             cameraButtonPress = false;
                         }
                     }
+                } else {
+                    Toast.makeText(OpenCameraActivity.this, "No Face Detected", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -847,14 +713,14 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
 
                     }
                     menu.setVisibility(View.VISIBLE);
-                    switchCameraButton.setVisibility(View.VISIBLE);
+                    chooseCameraButton.setVisibility(View.VISIBLE);
                     if (switchCamera)// If facing back camera then only make it visible or else dont.
                         flashButton.setVisibility(View.VISIBLE);
                     settingsButtonPress = true;
                 } else {
                     faceEyesMouthBtn.setVisibility(View.INVISIBLE);
                     menu.setVisibility(View.INVISIBLE);
-                    switchCameraButton.setVisibility(View.INVISIBLE);
+                    chooseCameraButton.setVisibility(View.INVISIBLE);
                     perfectPhotoButton.setVisibility(View.INVISIBLE);
                     flashButton.setVisibility(View.INVISIBLE);
                     settingsButtonPress = false;
@@ -975,7 +841,7 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
             perfectPhotoButton.startAnimation(animationFadeOut);
         }
         menu.startAnimation(animationFadeOut);
-        switchCameraButton.startAnimation(animationFadeOut);
+        chooseCameraButton.startAnimation(animationFadeOut);
         clientListButton.startAnimation(animationFadeOut);
 
         if (switchCamera) {
@@ -983,7 +849,7 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
         }
         faceEyesMouthBtn.setVisibility(View.GONE);
         menu.setVisibility(View.GONE);
-        switchCameraButton.setVisibility(View.GONE);
+        chooseCameraButton.setVisibility(View.GONE);
         perfectPhotoButton.setVisibility(View.GONE);
         flashButton.setVisibility(View.GONE);
 
@@ -993,6 +859,7 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
      * Function to take the raw YUV byte array and do the necessary conversions to save it.
      */
     private void savePicture(byte[] data) {
+        cameraObj.startPreview();
         Intent intent = new Intent(this, PhotoConfirmationActivity.class);
         // This is when smart shutter feature is not ON. Take the photo generally.
         if (data != null) {
@@ -1048,28 +915,6 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
 
     }
 
-    public void loadAlbum() {
-//        Toast.makeText(this, "Load FacialActivity Album", Toast.LENGTH_SHORT).show();
-        Log.e(TAG, "loadAlbum: start");
-        SharedPreferences settings = getSharedPreferences(FaceConstants.ALBUM_NAME, 0);
-        String arrayOfString = settings.getString(FaceConstants.ALBUM_ARRAY, null);
-
-        Log.e(TAG, "loadAlbum: " + arrayOfString);
-        byte[] albumArray;
-        if (arrayOfString != null) {
-            String[] splitStringArray = arrayOfString.substring(1,
-                    arrayOfString.length() - 1).split(", ");
-
-            albumArray = new byte[splitStringArray.length];
-            for (int i = 0; i < splitStringArray.length; i++) {
-                albumArray[i] = Byte.parseByte(splitStringArray[i]);
-            }
-            // Boolean
-            OpenCameraActivity.faceProc.deserializeRecognitionAlbum(albumArray);
-            Log.e(TAG, "De-Serialized Album Success! " + albumArray.toString());
-        }
-    }
-
     protected void saveHash(HashMap<String, String> hashMap, Context context) {
         SharedPreferences settings = context.getSharedPreferences(FaceConstants.HASH_NAME, 0);
 
@@ -1080,6 +925,19 @@ public class OpenCameraActivity extends Activity implements Camera.PreviewCallba
             editor.putString(s, hashMap.get(s));
         }
         editor.apply();
+    }
+
+    /**
+     * Get Client List
+     *
+     * @param context
+     * @return
+     */
+    public static HashMap<String, String> retrieveHash(Context context) {
+        SharedPreferences settings = context.getSharedPreferences(FaceConstants.HASH_NAME, 0);
+        HashMap<String, String> hash = new HashMap<>();
+        hash.putAll((Map<? extends String, ? extends String>) settings.getAll());
+        return hash;
     }
 
 

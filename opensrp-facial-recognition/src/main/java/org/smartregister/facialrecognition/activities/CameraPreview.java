@@ -1,4 +1,4 @@
-package org.smartregister.facialrecognition.activity;
+package org.smartregister.facialrecognition.activities;
 
 import android.content.Context;
 import android.hardware.Camera;

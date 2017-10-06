@@ -46,54 +46,54 @@ public class FaceVectorRepository extends DrishtiRepository {
 
     }
 
-    private List<ProfileImage> readAll(Cursor cursor) {
-        List<ProfileImage> profileImages = new ArrayList<>();
+//    private List<ProfileImage> readAll(Cursor cursor) {
+//        List<ProfileImage> profileImages = new ArrayList<>();
+//
+//        try {
+//            if (cursor != null && cursor.getCount()>0 && cursor.moveToFirst()) {
+//                while (cursor.getCount() > 0 && !cursor.isAfterLast()) {
+//
+//                    profileImages.add(new ProfileImage(
+//                            cursor.getString(0),
+//                            cursor.getString(1),
+//                            cursor.getString(2),
+//                            cursor.getString(3),
+//                            cursor.getString(4),
+//                            cursor.getString(5),
+//                            cursor.getString(6),
+//                            cursor.getString(7)
+//                    )
+//                    );
+//
+//                    cursor.moveToNext();
+//                }
+//            }
+//
+//        } catch (Exception e) {
+//            Log.e(TAG,e.getMessage());
+//        } finally {
+//            assert cursor != null;
+//            cursor.close();
+//        }
+//        return profileImages;
+//    }
 
-        try {
-            if (cursor != null && cursor.getCount()>0 && cursor.moveToFirst()) {
-                while (cursor.getCount() > 0 && !cursor.isAfterLast()) {
 
-                    profileImages.add(new ProfileImage(
-                            cursor.getString(0),
-                            cursor.getString(1),
-                            cursor.getString(2),
-                            cursor.getString(3),
-                            cursor.getString(4),
-                            cursor.getString(5),
-                            cursor.getString(6),
-                            cursor.getString(7)
-                    )
-                    );
+//    public ProfileImage findVectorByEntityId(String entityId) {
+//        SQLiteDatabase database = masterRepository.getReadableDatabase();
+//        Cursor cursor = database.query(Vector_TABLE_NAME,
+//                Vector_TABLE_COLUMNS,
+//                entityID_COLUMN + " = ?",
+//                new String[]{entityId}, null, null, null, null);
+//        List<ProfileImage> allcursor = readAll(cursor);
+//        return (!allcursor.isEmpty()) ? allcursor.get(0) : null;
+//    }
 
-                    cursor.moveToNext();
-                }
-            }
-
-        } catch (Exception e) {
-            Log.e(TAG,e.getMessage());
-        } finally {
-            assert cursor != null;
-            cursor.close();
-        }
-        return profileImages;
-    }
-
-
-    public ProfileImage findVectorByEntityId(String entityId) {
-        SQLiteDatabase database = masterRepository.getReadableDatabase();
-        Cursor cursor = database.query(Vector_TABLE_NAME,
-                Vector_TABLE_COLUMNS,
-                entityID_COLUMN + " = ?",
-                new String[]{entityId}, null, null, null, null);
-        List<ProfileImage> allcursor = readAll(cursor);
-        return (!allcursor.isEmpty()) ? allcursor.get(0) : null;
-    }
-
-    public List<ProfileImage> findVectorAllUnSynced() {
-        SQLiteDatabase database = masterRepository.getReadableDatabase();
-        Cursor cursor = database.query(Vector_TABLE_NAME, Vector_TABLE_COLUMNS, syncStatus_COLUMN + " = ?", new String[]{TYPE_Unsynced}, null, null, null, null);
-        return readAll(cursor);
-    }
+//    public List<ProfileImage> findVectorAllUnSynced() {
+//        SQLiteDatabase database = masterRepository.getReadableDatabase();
+//        Cursor cursor = database.query(Vector_TABLE_NAME, Vector_TABLE_COLUMNS, syncStatus_COLUMN + " = ?", new String[]{TYPE_Unsynced}, null, null, null, null);
+//        return readAll(cursor);
+//    }
 
     public void vector_close(String caseId) {
         ContentValues values = new ContentValues();

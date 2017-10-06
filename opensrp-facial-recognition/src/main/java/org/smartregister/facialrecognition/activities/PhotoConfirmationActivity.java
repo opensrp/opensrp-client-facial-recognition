@@ -1,7 +1,7 @@
-package org.smartregister.facialrecognition.activity;
+package org.smartregister.facialrecognition.activities;
 
-import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -11,6 +11,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
@@ -19,10 +20,12 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.balysv.materialmenu.MaterialMenuDrawable;
 import com.qualcomm.snapdragon.sdk.face.FaceData;
 import com.qualcomm.snapdragon.sdk.face.FacialProcessing;
 
 import org.smartregister.facialrecognition.R;
+import org.smartregister.facialrecognition.util.BitmapUtil;
 import org.smartregister.facialrecognition.utils.FaceConstants;
 import org.smartregister.facialrecognition.utils.Tools;
 
@@ -32,7 +35,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 
-public class PhotoConfirmationActivity extends Activity {
+public class PhotoConfirmationActivity extends AppCompatActivity {
 
     private static String TAG = PhotoConfirmationActivity.class.getSimpleName();
     private Bitmap storedBitmap;
@@ -61,18 +64,53 @@ public class PhotoConfirmationActivity extends Activity {
     private byte[] faceVector;
     private boolean updated = false;
 
+//    private DrawerLayout drawerLayout;
+    private boolean isDrawerOpened;
+    private MaterialMenuDrawable materialMenu;
+    private Context context;
+    private boolean cameraFront = false;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_fr_image_face_confirmation);
+
+        setContentView(R.layout.activity_fr_confirmation);
+
+        context = getApplicationContext();
 
         init_gui();
 
         init_extras();
 
-        process_img();
+//        process_img();
 
-        buttonJob();
+        image_proc();
+
+        initListeners();
+    }
+
+    private void image_proc() {
+        int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
+        int screenHeight = context.getResources().getDisplayMetrics().heightPixels;
+
+        storedBitmap = BitmapFactory.decodeByteArray(data, 0, data.length, null);
+
+        Matrix mat = new Matrix();
+
+        if (!cameraFront) {
+            mat.postRotate(angle == 90 ? 270 : (angle == 180 ? 180 : 0));
+//            mat.postScale(-1, 1);
+            storedBitmap = Bitmap.createBitmap(storedBitmap, 0, 0, storedBitmap.getWidth(), storedBitmap.getHeight(), mat, true);
+        } else {
+            mat.postRotate(angle == 90 ? 90 : (angle == 180 ? 180 : 0));
+            storedBitmap = Bitmap.createBitmap(storedBitmap, 0, 0, storedBitmap.getWidth(), storedBitmap.getHeight(), mat, true);
+        }
+
+//        confirmationView.setImageBitmap(storedBitmap);
+        Bitmap scaled = Bitmap.createScaledBitmap(storedBitmap, screenWidth,screenHeight, true);
+        confirmationView.setImageBitmap(scaled);
     }
 
     private void init_gui() {
@@ -80,6 +118,17 @@ public class PhotoConfirmationActivity extends Activity {
         confirmationView = (ImageView) findViewById(R.id.iv_confirmationView);
         trashButton = (ImageView) findViewById(R.id.iv_cancel);
         confirmButton = (ImageView) findViewById(R.id.iv_approve);
+
+//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
+//        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+//            @Override public void onClick(View v) {
+//                // Handle your drawable state here
+////                materialMenu.animateState(newState);
+//            }
+//        });
+//        materialMenu = new MaterialMenuDrawable(this, Color.WHITE, MaterialMenuDrawable.Stroke.THIN);
+//        toolbar.setNavigationIcon(materialMenu);
     }
 
     /**
@@ -89,14 +138,13 @@ public class PhotoConfirmationActivity extends Activity {
         Bundle extras = getIntent().getExtras();
         data = getIntent().getByteArrayExtra("org.smartregister.facialrecognition.PhotoConfirmationActivity");
         angle = extras.getInt("org.smartregister.facialrecognition.PhotoConfirmationActivity.orientation");
-        switchCamera = extras.getBoolean("org.smartregister.facialrecognition.PhotoConfirmationActivity.switchCamera");
+        cameraFront = extras.getBoolean("org.smartregister.facialrecognition.PhotoConfirmationActivity.switchCamera");
         entityId = extras.getString("org.smartregister.facialrecognition.PhotoConfirmationActivity.id");
         identifyPerson = extras.getBoolean("org.smartregister.facialrecognition.PhotoConfirmationActivity.identify");
         kiclient = extras.getParcelableArray("org.smartregister.facialrecognition.PhotoConfirmationActivity.kiclient");
         str_origin_class = extras.getString("org.smartregister.facialrecognition.PhotoConfirmationActivity.origin");
         updated = extras.getBoolean("org.smartregister.facialrecognition.PhotoConfirmationActivity.updated");
         Log.e(TAG, "init_extras: updated "+updated );
-
     }
 
     private void process_img() {
@@ -108,11 +156,13 @@ public class PhotoConfirmationActivity extends Activity {
         objFace = OpenCameraActivity.faceProc;
 
         Matrix mat = new Matrix();
-        if (!switchCamera) {
-            mat.postRotate(angle == 90 ? 270 : (angle == 180 ? 180 : 0));
+        if (!cameraFront) {
+            Log.e(TAG, "process_img: FALSE" );
+            mat.postRotate(angle == 0 ? 270 : (angle == 180 ? 180 : 0));
             mat.postScale(-1, 1);
             storedBitmap = Bitmap.createBitmap(storedBitmap, 0, 0, storedBitmap.getWidth(), storedBitmap.getHeight(), mat, true);
         } else {
+            Log.e(TAG, "process_img: TRUE" );
             mat.postRotate(angle == 90 ? 90 : (angle == 180 ? 180 : 0));
             storedBitmap = Bitmap.createBitmap(storedBitmap, 0, 0, storedBitmap.getWidth(), storedBitmap.getHeight(), mat, true);
         }
@@ -124,16 +174,13 @@ public class PhotoConfirmationActivity extends Activity {
         boolean setBitmapResult = objFace.setBitmap(storedBitmap);
         faceDatas = objFace.getFaceData();
 
-//        Log.e(TAG, "process_img: w "+ tempBitmap.getWidth() );
-//        Log.e(TAG, "process_img: h "+ tempBitmap.getHeight() );
-        Log.e(TAG, "process_img: w "+confirmationView.getWidth() ); //w 1536
-        Log.e(TAG, "process_img: h "+confirmationView.getHeight() ); //h 1872
+        Log.e(TAG, "process_img: confirmationView w/h "+confirmationView.getWidth() +"/"+confirmationView.getHeight() ); // w/h 1536/1872
 
         /**
          * Set Height and Width
          */
-        int imageViewSurfaceWidth = storedBitmap.getWidth();
-        int imageViewSurfaceHeight = storedBitmap.getHeight();
+        int imageViewSurfaceWidth = storedBitmap.getWidth()/2;
+        int imageViewSurfaceHeight = storedBitmap.getHeight()/2;
 //        int imageViewSurfaceWidth = confirmationView.getWidth();
 //        int imageViewSurfaceHeight = confirmationView.getHeight();
 
@@ -144,17 +191,18 @@ public class PhotoConfirmationActivity extends Activity {
 
 //        mutableBitmap = storedBitmap.copy(Bitmap.Config.ARGB_8888, true);
 //        Bitmap tempBitmap = Bitmap.createScaledBitmap(storedBitmap,
-//                (storedBitmap.getWidth() / 2), (storedBitmap.getHeight() / 2),
+//                (storedBitmap.getWidth() / 20), (storedBitmap.getHeight() / 20),
 //                false);
-        confirmationView.setImageBitmap(mutableBitmap); // Setting the view with the bitmap image that came in.
 
+        confirmationView.setImageBitmap(mutableBitmap);
+//        confirmationView.setImageBitmap(tempBitmap);
 
         objFace.normalizeCoordinates(imageViewSurfaceWidth, imageViewSurfaceHeight);
 
         // Set Bitmap Success
         if(setBitmapResult){
 
-            // Face Data Exist
+            // Only if Face Data Exist
             if(faceDatas != null){
 //                Log.e(TAG, "onCreate: faceDatas "+faceDatas.length );
                 rects = new Rect[faceDatas.length];
@@ -215,18 +263,9 @@ public class PhotoConfirmationActivity extends Activity {
 
                         // Face and Rect
 //                        confirmationView.setImageBitmap(mutableBitmap);
-                        Drawable drawable = confirmationView.getDrawable();
-//you should call after the bitmap drawn
+                        Drawable drawable = confirmationView.getDrawable();//you should call after the bitmap drawn
                         Rect bounds = drawable.getBounds();
-                        int width = bounds.width();
-                        int height = bounds.height();
-                        int bitmapWidth = drawable.getIntrinsicWidth(); //this is the bitmap's width
-                        int bitmapHeight = drawable.getIntrinsicHeight(); //this is the bitmap's height
 
-                        Log.e(TAG, "process_img: w "+ width );
-                        Log.e(TAG, "process_img: h "+ height );
-                        Log.e(TAG, "process_img: bw "+ bitmapWidth );
-                        Log.e(TAG, "process_img: bh "+ bitmapHeight );
                     } // end if-else mode Identify {True or False}
 
                 } // end for count ic_faces
@@ -237,7 +276,7 @@ public class PhotoConfirmationActivity extends Activity {
                 Toast.makeText(PhotoConfirmationActivity.this, "No Face Detected", Toast.LENGTH_SHORT).show();
                 Intent resultIntent = new Intent();
                 setResult(RESULT_CANCELED, resultIntent);
-                PhotoConfirmationActivity.this.finish();
+//                PhotoConfirmationActivity.this.finish();
             }
 
         } else {
@@ -293,10 +332,7 @@ public class PhotoConfirmationActivity extends Activity {
 
     }
 
-    /**
-     *
-     */
-    private void buttonJob() {
+    private void initListeners() {
         // If approved then save the image and close.
         confirmButton.setOnClickListener(new View.OnClickListener() {
 
@@ -305,9 +341,8 @@ public class PhotoConfirmationActivity extends Activity {
 
                 if (!identifyPerson) {
 
-                    Log.e(TAG, "onClick: class origin "+str_origin_class );
-
-                    Tools.saveAndClose(getApplicationContext(), entityId, updated, objFace, arrayPossition, storedBitmap, str_origin_class);
+//                    Tools.saveAndClose(getApplicationContext(), entityId, updated, objFace, arrayPossition, storedBitmap, str_origin_class);
+                    BitmapUtil.saveAndClose(getApplicationContext(), entityId, updated, objFace, arrayPossition, storedBitmap, str_origin_class);
 
                     // Back To Detail Activity
                     Intent i = new Intent();
@@ -316,12 +351,7 @@ public class PhotoConfirmationActivity extends Activity {
 
                 } else {
                     Log.e(TAG, "onClick: not identify ");
-                    // TODO: detect origin class
-//                    KIDetailActivity.kiclient = (CommonPersonObjectClient) arg0.getTag();
-//                    Log.e(TAG, "onClick: " + KIDetailActivity.kiclient);
-//                    Intent intent = new Intent(PhotoConfirmationActivity.this,KIDetailActivity.class);
                     Log.e(TAG, "onClick: " + selectedPersonName);
-//                    startActivity(intent);
                 }
             }
 
@@ -435,6 +465,5 @@ public class PhotoConfirmationActivity extends Activity {
 //                .child("imageUrl");
 //        ref.setValue(imageEncoded);
     }
-
 
 }

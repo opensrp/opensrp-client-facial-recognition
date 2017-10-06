@@ -1,0 +1,153 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="0dp"
+    android:paddingLeft="0dp"
+    android:paddingRight="0dp"
+    android:paddingTop="0dp"
+    tools:context=".activities.OpenCameraActivity">
+
+    <FrameLayout
+        android:id="@+id/cameraPreview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        tools:ignore="RtlHardcoded">
+
+    </FrameLayout>
+
+    <ImageView
+        android:id="@+id/cameraButton"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/camera_btn"
+        android:gravity="bottom"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/chooseCamera"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_marginRight="0dp"
+        android:gravity="bottom"
+        tools:ignore="ContentDescription,RtlHardcoded"
+        android:layout_below="@+id/menu"
+        android:layout_toEndOf="@+id/cameraButton"
+        android:layout_marginStart="150dp" />
+
+    <ImageView
+        android:id="@+id/switchCamera"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginLeft="0dp"
+        android:gravity="center"
+        tools:ignore="ContentDescription,RtlHardcoded" />
+
+    <ImageView
+        android:id="@+id/settings"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/ic_settings_white_24dp"
+        android:gravity="bottom"
+        tools:ignore="ContentDescription,RtlHardcoded" />
+
+    <ImageView
+        android:id="@+id/gallery"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:gravity="bottom"
+        tools:ignore="ContentDescription,RtlHardcoded"
+        android:layout_alignTop="@+id/faceDetection"
+        android:layout_centerHorizontal="true" />
+
+
+
+    <CheckBox
+        android:id="@+id/smileCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:checked="false"
+        android:text="Smile"
+        tools:ignore="HardcodedText,RtlHardcoded" />
+
+    <CheckBox
+        android:id="@+id/blinkCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/smileCheckBox"
+        android:text="Eyes Open"
+        tools:ignore="HardcodedText,RtlHardcoded" />
+
+    <CheckBox
+        android:id="@+id/gazeAngleCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/blinkCheckBox"
+        android:text="Look At The Camera"
+        tools:ignore="HardcodedText,RtlHardcoded" />
+
+    <ImageView
+        android:id="@+id/menu"
+        android:layout_width="55dp"
+        android:layout_height="220dp"
+        android:layout_above="@id/settings"
+        android:layout_alignLeft="@id/settings"
+        android:gravity="bottom"
+        tools:ignore="ContentDescription,RtlHardcoded" />
+
+    <ImageView
+        android:id="@+id/clientList"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignLeft="@id/menu"
+        android:layout_alignRight="@id/menu"
+        android:layout_alignTop="@id/menu"
+        android:gravity="center"
+        tools:ignore="ContentDescription,RtlHardcoded" />
+
+    <ImageView
+        android:id="@+id/perfectMode"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignLeft="@id/menu"
+        android:layout_alignRight="@id/menu"
+        android:layout_below="@+id/clientList"
+        android:layout_marginTop="4dp"
+        android:gravity="center"
+        tools:ignore="ContentDescription,RtlHardcoded" />
+
+    <ImageView
+        android:id="@+id/faceDetection"
+        android:layout_width="55dp"
+        android:layout_height="50dp"
+        android:layout_alignLeft="@id/menu"
+        android:layout_alignRight="@id/menu"
+        android:layout_below="@+id/perfectMode"
+        android:layout_marginTop="4dp"
+        android:gravity="center"
+        tools:ignore="ContentDescription,RtlHardcoded" />
+
+    <ImageView
+        android:id="@+id/flash"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignLeft="@id/menu"
+        android:layout_alignRight="@id/menu"
+        android:layout_below="@+id/switchCamera"
+        android:layout_marginTop="4dp"
+        android:gravity="center"
+        tools:ignore="ContentDescription,RtlHardcoded" />
+
+</RelativeLayout>

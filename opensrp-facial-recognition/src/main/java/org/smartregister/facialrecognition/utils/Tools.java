@@ -2,7 +2,6 @@ package org.smartregister.facialrecognition.utils;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -26,12 +25,15 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.smartregister.Context;
 import org.smartregister.facialrecognition.R;
-import org.smartregister.facialrecognition.activity.ClientsListActivity;
-import org.smartregister.facialrecognition.activity.PhotoConfirmationActivity;
-import org.smartregister.facialrecognition.activity.OpenCameraActivity;
-import org.smartregister.facialrecognition.repository.ImageRepository;
+import org.smartregister.facialrecognition.activities.ClientsListActivity;
+import org.smartregister.facialrecognition.activities.OpenCameraActivity;
+import org.smartregister.facialrecognition.activities.PhotoConfirmationActivity;
 import org.smartregister.facialrecognition.domain.ProfileImage;
+import org.smartregister.facialrecognition.repository.ImageRepository;
+import org.smartregister.util.OpenSRPImageLoader;
+import org.smartregister.view.activity.DrishtiApplication;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -46,9 +48,6 @@ import java.util.UUID;
 
 import cz.msebera.android.httpclient.Header;
 import okhttp3.ResponseBody;
-import org.smartregister.Context;
-import org.smartregister.util.OpenSRPImageLoader;
-import org.smartregister.view.activity.DrishtiApplication;
 
 import static org.apache.commons.lang3.StringUtils.capitalize;
 
@@ -76,7 +75,7 @@ public class Tools {
     private static HashMap<String, String> hash;
     private String albumBuffer;
     private List<ProfileImage> list;
-    private static String anmId = Context.getInstance().allSharedPreferences().fetchRegisteredANM();
+//    private static String anmId = Context.getInstance().allSharedPreferences().fetchRegisteredANM();
     private static ProfileImage profileImage = new ProfileImage();
     private static ImageRepository imageRepo;
 //    private FaceRepository faceRepo = (FaceRepository) new FaceRepository().faceRepository();
@@ -151,14 +150,14 @@ public class Tools {
         Log.e(TAG, "saveToDb: " + "start");
         // insert into the db local
         if (!updated) {
-            profileImage.setImageid(UUID.randomUUID().toString());
-            profileImage.setAnmId(anmId);
-            profileImage.setEntityID(entityId);
+            profileImage.setId(Long.valueOf(UUID.randomUUID().toString()));
+//            profileImage.setAnmId(anmId);
+            profileImage.setBaseEntityId(entityId);
             profileImage.setContenttype("jpeg");
             profileImage.setFilepath(absoluteFileName);
             profileImage.setFilecategory("profilepic");
             profileImage.setFilevector(faceVector);
-            profileImage.setSyncStatus(ImageRepository.TYPE_Unsynced);
+            profileImage.setSyncStatus((String) ImageRepository.TYPE_Unsynced);
 
             imageRepo.add(profileImage, entityId);
         } else {
@@ -181,11 +180,10 @@ public class Tools {
         // Mode 1 = Thumbs
 
         // Location use app_dir
-        String imgFolder = (mode == 0) ? DrishtiApplication.getAppDir() :
+        String imgFolder = (mode == 0) ?
+                DrishtiApplication.getAppDir() :
                 DrishtiApplication.getAppDir() + File.separator + ".thumbs";
-//        String imgFolder = (mode == 0) ? "OPENSRP_SID":"OPENSRP_SID"+File.separator+".thumbs";
-//        File mediaStorageDir = new File(
-//                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), imgFolder);
+
         File mediaStorageDir = new File(imgFolder);
 
         // Create the storage directory if it does not exist
@@ -266,10 +264,6 @@ public class Tools {
      * @param pixelDensity  Pixel area density
      */
     public static void drawRectFace(Rect rect, Bitmap mutableBitmap, float pixelDensity) {
-
-        Log.e(TAG, "drawRectFace: rect " + rect);
-        Log.e(TAG, "drawRectFace: bitmap " + mutableBitmap);
-        Log.e(TAG, "drawRectFace: pixelDensity " + pixelDensity);
 
         // Extra padding around the faceRects
         rect.set(rect.left -= 20, rect.top -= 20, rect.right += 20, rect.bottom += 20);
@@ -496,10 +490,10 @@ public class Tools {
 //
 //                // Update Table ImageList on existing record based on entityId where faceVector== null
 //                ProfileImage profileImage = new ProfileImage();
-////                profileImage.setImageid(UUID.randomUUID().toString());
+////                profileImage.setId(UUID.randomUUID().toString());
 //                // TODO : get anmID from ?
 //                profileImage.setAnmId(anmId);
-//                profileImage.setEntityID(uid);
+//                profileImage.setBaseEntityId(uid);
 ////                profileImage.setFilepath(null);
 ////                profileImage.setFilecategory("profilepic");
 ////                profileImage.setSyncStatus(ImageRepository.TYPE_Synced);
@@ -574,10 +568,10 @@ public class Tools {
 
                 // Update Table ImageList on existing record based on entityId where faceVector== null
                 ProfileImage profileImage = new ProfileImage();
-//                profileImage.setImageid(UUID.randomUUID().toString());
+//                profileImage.setId(UUID.randomUUID().toString());
                 // TODO : get anmID from ?
-                profileImage.setAnmId(anmId);
-                profileImage.setEntityID(uid);
+//                profileImage.setAnmId(anmId);
+                profileImage.setBaseEntityId(uid);
 //                profileImage.setFilepath(null);
 //                profileImage.setFilecategory("profilepic");
 //                profileImage.setSyncStatus(ImageRepository.TYPE_Synced);
@@ -629,33 +623,33 @@ public class Tools {
 
         byte[] faceVector;
 
-        if (!updated) {
+        setAppContext(context);
+
+        // New record
+        if (!updated && objFace != null) {
 
             int result = objFace.addPerson(arrayPossition);
             faceVector = objFace.serializeRecogntionAlbum();
 
-            hash = retrieveHash(context);
+//            hash = retrieveHash(context);
+//            hash.put(entityId, Integer.toString(result));
 
-            hash.put(entityId, Integer.toString(result));
+            // Save Hash to Device
+//            saveHash(hash, context);
 
-            // Save Hash
-            saveHash(hash, context);
-
-            // Save to buffer
-            saveAlbum(Arrays.toString(faceVector), context);
+            // Save to Device buffer
+//            saveAlbum(Arrays.toString(faceVector), context);
 
             String albumBufferArr = Arrays.toString(faceVector);
-
             String[] faceVectorContent = albumBufferArr.substring(1, albumBufferArr.length() - 1).split(", ");
 
             // Get Face Vector Contnt Only by removing Header
             faceVectorContent = Arrays.copyOfRange(faceVectorContent, faceVector.length - 300, faceVector.length);
-
             WritePictureToFile(storedBitmap, entityId, faceVectorContent, updated);
 
             // Reset Album to get Single Face Vector
 
-        } else {
+        } else if(updated && objFace != null){
 
             int update_result = objFace.updatePerson(Integer.parseInt(hash.get(entityId)), 0);
 
@@ -673,6 +667,8 @@ public class Tools {
 
             // TODO : update only face vector
             saveAlbum(Arrays.toString(faceVector), context);
+        } else {
+            Log.e(TAG, "saveAndClose: "+ "Face Not Found" );
         }
 
         new PhotoConfirmationActivity().finish();
@@ -697,12 +693,11 @@ public class Tools {
         if (appContext == null) {
             Log.e(TAG, "saveAndClose: Context NULL" );
 
-            appContext = getAppContext();
+//            appContext = getAppContext();
 //            Intent resultIntent = new Intent(appContext.applicationContext(), origin_class);
-            Intent resultIntent = new Intent(context, origin_class);
-            resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            appContext.applicationContext().startActivity(resultIntent);
-
+//            Intent resultIntent = new Intent(context, origin_class);
+//            resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            appContext.applicationContext().startActivity(resultIntent);
         } else {
             Log.e(TAG, "saveAndClose: Context Opensrp "+ appContext.applicationContext() );
             Log.e(TAG, "saveAndClose: Context Android "+ context );
@@ -712,6 +707,11 @@ public class Tools {
         }
         Log.e(TAG, "saveAndClose: " + "end");
     }
+
+    private static void setAppContext(android.content.Context mcontext) {
+        androContext = mcontext;
+    }
+
 
     public static void setVectorsBuffered() {
         Log.e(TAG, "setVectorsBuffered: START" );
@@ -737,7 +737,7 @@ public class Tools {
 //                    vectorFace[0] = String.valueOf((i%128) % 256 - 128);
 
                     albumBuffered = ArrayUtils.addAll(albumBuffered, vectorFace);
-                    hash.put(profileImage.getEntityID(), String.valueOf(i));
+                    hash.put(profileImage.getBaseEntityId(), String.valueOf(i));
 
                 } else {
                     Log.e(TAG, "setVectorsBuffered: Profile Image Null");
@@ -823,14 +823,14 @@ public class Tools {
                     // insert into the db local
                     ProfileImage profileImage = new ProfileImage();
 
-                    profileImage.setImageid(UUID.randomUUID().toString());
-                    profileImage.setAnmId(anmId);
-                    profileImage.setEntityID(entityId);
+                    profileImage.setId(Long.valueOf(UUID.randomUUID().toString()));
+//                    profileImage.setAnmId(anmId);
+                    profileImage.setBaseEntityId(entityId);
                     profileImage.setContenttype("jpeg");
                     profileImage.setFilepath(absoluteFileName);
                     profileImage.setFilecategory("profilepic");
                     profileImage.setFilevector(Arrays.toString(faceVector));
-                    profileImage.setSyncStatus(ImageRepository.TYPE_Unsynced);
+                    profileImage.setSyncStatus(String.valueOf(ImageRepository.TYPE_Unsynced));
 
                     imageRepo.add(profileImage, entityId);
                 }
@@ -886,4 +886,11 @@ public class Tools {
     }
 
 
+    public static boolean isSupport() {
+        if(FacialProcessing.isFeatureSupported(FacialProcessing.FEATURE_LIST.FEATURE_FACIAL_PROCESSING)){
+            return true;
+        } else {
+        return false;
+        }
+    }
 }

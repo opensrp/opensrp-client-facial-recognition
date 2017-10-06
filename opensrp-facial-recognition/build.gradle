@@ -1,19 +1,27 @@
-description = 'OpenSRP facial recognition client library'
-
 buildscript {
     repositories {
         jcenter()
+        maven {
+            url "https://jcenter.bintray.com"
+        }
     }
     dependencies {
         classpath "com.android.tools.build:gradle:1.2.3"
-        classpath 'org.robolectric:robolectric-gradle-plugin:1.1.0'
-        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.8.1'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+        mavenLocal()
     }
 }
 
 apply plugin: 'com.android.library'
-apply plugin: 'jacoco'
-apply plugin: 'com.github.kt3k.coveralls'
 
 android {
     compileSdkVersion 22
@@ -24,7 +32,6 @@ android {
         targetSdkVersion 21
         versionCode 1
         versionName "1.0"
-        multiDexEnabled true
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -34,34 +41,24 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-    }
 
-    dexOptions {
-        incremental true
-        javaMaxHeapSize "4g"
-    }
+        debug {
+            multiDexEnabled true
 
-    lintOptions {
-        abortOnError false
+        }
     }
-
-    // avoid errors with message 'Duplicate files copied in APK ...'
     packagingOptions {
-        exclude 'LICENSE.txt'
-        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/DEPENDENCIES.txt'
         exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/license.txt'
         exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/notice.txt'
-        exclude 'META-INF/ASL2.0'
-    }
-
-}
-
-allprojects {
-    repositories {
-        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
-        mavenLocal()
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/dependencies.txt'
+        exclude 'META-INF/LGPL2.1'
+        exclude 'LICENSE.txt'
     }
 }
 
@@ -70,41 +67,18 @@ dependencies {
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
     }
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:design:22.2.1'
-    compile 'com.android.support:appcompat-v7:22.1.1'
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+
     compile 'com.loopj.android:android-async-http:1.4.9'
     compile 'com.squareup.okhttp3:okhttp:3.8.1'
-    compile 'org.apache.commons:commons-lang3:3.3.2'
+    compile 'com.balysv.materialmenu:material-menu:2.0.0'
+
+    testCompile 'junit:junit:4.12'
+
     androidTestCompile 'junit:junit:4.12'
 
-    testCompile('org.robolectric:robolectric:3.4') {
-
-        exclude group: 'com.google.guava', module: 'guava'
-        exclude group: 'org.apache.maven', module: 'maven-model'
-        exclude group: 'org.apache.maven', module: 'maven-ant-tasks'
-        exclude group: 'com.android.support'
-        exclude group: 'com.thoughtworks.xstream', module: 'xstream'
-    }
-
-    testCompile("org.robolectric:shadows-multidex:3.4-rc2") {
-        exclude group: 'com.google.guava', module: 'guava'
-    }
-
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.+') {
-
-        exclude group: 'com.android.support', module: 'support-annotations'
-        exclude group: 'junit', module: 'junit'
-    }
-    // PowerMock
-    def powerMockVersion = '1.6.4'
-    testCompile "org.powermock:powermock-module-junit4:$powerMockVersion"
-    testCompile "org.powermock:powermock-module-junit4-rule:$powerMockVersion"
-    testCompile "org.powermock:powermock-api-mockito:$powerMockVersion"
-    testCompile("org.powermock:powermock-classloading-xstream:$powerMockVersion") {
-
-        exclude group: 'com.thoughtworks.xstream', module: 'xstream'
-    }
-
-
+    compile 'com.android.support:appcompat-v7:22.2.1'
 }

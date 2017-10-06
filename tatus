@@ -1,0 +1,90 @@
+[33mcommit 1737f6fd84af13a153346a8db98088a0fe82894f[m
+Merge: 5b9d5af 435f012
+Author: wildan.mbp <wildan.ubg@gmail.com>
+Date:   Wed Oct 4 07:52:35 2017 -0400
+
+    Merge branch 'master' into sdk21
+
+[33mcommit 5b9d5afeb9e31d2f117107bda68a6c73d34bf9f0[m
+Author: wildan.mbp <wildan.ubg@gmail.com>
+Date:   Wed Oct 4 07:25:27 2017 -0400
+
+    WD|Edit .gitignore add ignore .idea
+
+[33mcommit 435f0124c3f70686d6ce474ae34cdba8f493381d[m
+Author: wildan.mbp <wildan.ubg@gmail.com>
+Date:   Wed Oct 4 07:16:00 2017 -0400
+
+    WD| Edit gitignore
+
+[33mcommit b134ad3f43c7730960cc44aeb5a0154e50b841c2[m
+Author: wildan.mbp <wildan.ubg@gmail.com>
+Date:   Wed Oct 4 06:53:15 2017 -0400
+
+    WD | Create repository for photo
+
+[33mcommit 5360293b9389275656edd2445dce9f8cac4f2495[m
+Author: wildan.mbp <wildan.ubg@gmail.com>
+Date:   Tue Oct 3 06:26:32 2017 -0400
+
+    WD| Handle crash if face not exist
+
+[33mcommit c9f29a3b2b8085cd51a04e5084502899833ed32b[m
+Author: wildan.mbp <wildan.ubg@gmail.com>
+Date:   Tue Oct 3 05:02:54 2017 -0400
+
+    WD| Remove native armeabi-v7a
+
+[33mcommit 8fcc7ff7e3950e87448a85ae931eb1ebf83ceb26[m
+Author: wildan.mbp <wildan.ubg@gmail.com>
+Date:   Tue Oct 3 05:00:43 2017 -0400
+
+    WD| Fix native library import issue
+
+[33mcommit 397661baa58f8131504637c874100ae4e423148f[m
+Author: wildan.mbp <wildan.ubg@gmail.com>
+Date:   Mon Oct 2 06:14:02 2017 -0400
+
+    WD | Set Confirmation display fit screen
+
+[33mcommit 089db749850577776b5c96abbc11ded539ebf4c8[m
+Author: wildan.mbp <wildan.ubg@gmail.com>
+Date:   Sat Sep 30 01:45:51 2017 -0400
+
+    Fix preview
+
+[33mcommit 9232cf0aac7b91eff5dcbb1fa569885c0f652d81[m
+Author: wildan.mbp <wildan.ubg@gmail.com>
+Date:   Fri Sep 29 02:30:50 2017 -0400
+
+    WD | Add Notification when No FACE detected
+
+[33mcommit ef8c918873c8d8ff7b10f40739c22f75f767fadb[m
+Author: wildan.mbp <wildan.ubg@gmail.com>
+Date:   Thu Sep 28 23:26:20 2017 -0400
+
+    Add AAR lib
+
+[33mcommit 5ee9595776a695e55244fa3825cf6d5d443e13eb[m
+Author: wildan.mbp <wildan.ubg@gmail.com>
+Date:   Thu Sep 28 06:37:08 2017 -0400
+
+    WD | Add lib module
+
+[33mcommit 68203cf824aed970af529952ef41cf404026be48[m
+Author: wildan.mbp <wildan.ubg@gmail.com>
+Date:   Thu Sep 28 00:26:48 2017 -0400
+
+    WD| Add native library
+
+[33mcommit 15ff3c80c7ccda34ec31f4226c6c7f08923ead7c[m
+Author: wildan.mbp <wildan.ubg@gmail.com>
+Date:   Tue Sep 26 20:38:34 2017 +0800
+
+    Init target21
+
+[33mcommit f47106537b4c2fb5d0b9c7992b898625c85eb0d7[m
+Author: Peter Lubell-Doughtie <peetldee@gmail.com>
+Date:   Wed Aug 30 20:32:39 2017 +0900
+
+    Initial commit
