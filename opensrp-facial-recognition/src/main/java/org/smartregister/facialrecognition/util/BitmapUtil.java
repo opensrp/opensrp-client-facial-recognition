@@ -3,6 +3,11 @@ package org.smartregister.facialrecognition.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.media.ThumbnailUtils;
 import android.renderscript.Element;
 import android.util.Log;
@@ -81,13 +86,83 @@ public class BitmapUtil {
     private static boolean saveToDb(String uid, FacialProcessing faceVector) {
         ProfileImage profileImage = new ProfileImage();
 
-        profileImage.setId(Long.valueOf(UUID.randomUUID().toString()));
+//        profileImage.setId(Long.valueOf(UUID.randomUUID().toString()));
         profileImage.setBaseEntityId(uid);
-        profileImage.setFilevector(Arrays.toString(faceVector.getFaceData()));
         profileImage.setSyncStatus(String.valueOf(ImageRepository.TYPE_Unsynced));
 
         imageRepo.add(profileImage, uid);
         return false;
+    }
+
+    public static void drawRectFace(Rect rect, Bitmap mBitmap, float pixelDensity) {
+        // Extra padding around the faceRects
+        rect.set(rect.left -= 20, rect.top -= 20, rect.right += 20, rect.bottom += 20);
+        Canvas canvas = new Canvas(mBitmap);
+
+        // Draw rect fill
+        Paint paintForRectFill = new Paint();
+        paintForRectFill.setStyle(Paint.Style.FILL);
+        paintForRectFill.setColor(Color.BLACK);
+        paintForRectFill.setAlpha(80);
+
+        // Draw rect strokes
+        Paint paintForRectStroke = new Paint();
+        paintForRectStroke.setStyle(Paint.Style.STROKE);
+        paintForRectStroke.setColor(Color.GREEN);
+        paintForRectStroke.setStrokeWidth(3);
+
+        // Draw Face detected Area
+        canvas.drawRect(rect, paintForRectFill);
+        canvas.drawRect(rect, paintForRectStroke);
+    }
+
+    public static void drawInfo(Rect rect, Bitmap mutableBitmap, float pixelDensity, String personName) {
+//        Log.e(TAG, "drawInfo: rect " + rect);
+//        Log.e(TAG, "drawInfo: bitmap" + mutableBitmap);
+
+        // Extra padding around the faceRects
+        rect.set(rect.left -= 20, rect.top -= 20, rect.right += 20, rect.bottom += 20);
+        Canvas canvas = new Canvas(mutableBitmap);
+        Paint paintForRectFill = new Paint();
+
+        // Draw rect fill
+        paintForRectFill.setStyle(Paint.Style.FILL);
+        paintForRectFill.setColor(Color.WHITE);
+        paintForRectFill.setAlpha(80);
+
+        // Draw rectangular strokes
+        Paint paintForRectStroke = new Paint();
+        paintForRectStroke.setStyle(Paint.Style.STROKE);
+        paintForRectStroke.setColor(Color.GREEN);
+        paintForRectStroke.setStrokeWidth(5);
+        canvas.drawRect(rect, paintForRectFill);
+        canvas.drawRect(rect, paintForRectStroke);
+
+//        float pixelDensity = getResources().getDisplayMetrics().density;
+        int textSize = (int) (rect.width() / 25 * pixelDensity);
+
+        Paint paintForText = new Paint();
+        Paint paintForTextBackground = new Paint();
+        Typeface tp = Typeface.SERIF;
+        Rect backgroundRect = new Rect(rect.left, rect.bottom, rect.right, (rect.bottom + textSize));
+
+        paintForText.setColor(Color.WHITE);
+        paintForText.setTextSize(textSize);
+        paintForTextBackground.setStyle(Paint.Style.FILL);
+        paintForTextBackground.setColor(Color.BLACK);
+        paintForText.setTypeface(tp);
+        paintForTextBackground.setAlpha(80);
+
+        if (personName != null) {
+            canvas.drawRect(backgroundRect, paintForTextBackground);
+            canvas.drawText(personName, rect.left, rect.bottom + (textSize), paintForText);
+        } else {
+            canvas.drawRect(backgroundRect, paintForTextBackground);
+            canvas.drawText("Not identified", rect.left, rect.bottom + (textSize), paintForText);
+        }
+
+//        confirmationView.setImageBitmap(mutableBitmap);
+
     }
 
 }
