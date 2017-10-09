@@ -53,22 +53,34 @@ public class BitmapUtil {
 
     private static boolean saveToFile(Bitmap mBitmap, String uid) {
 
-        String[] photoDirs = new String[]{DrishtiApplication.getAppDir(), DrishtiApplication.getAppDir() + File.separator + ".thumbs"};
+        String[] photoDirs = new String[]{DrishtiApplication.getAppDir(),
+                DrishtiApplication.getAppDir() + File.separator + ".thumbs"};
 
         try {
             // Raw image
-            FileOutputStream oriFos = new FileOutputStream(new File(String.format("%s%s%s.jpg", photoDirs[0], File.separator, uid)));
+            File jpegId = new File(String.format("%s%s%s.jpg", photoDirs[0], File.separator, uid));
+            FileOutputStream oriFos = new FileOutputStream(jpegId);
             mBitmap.compress(Bitmap.CompressFormat.PNG, 100, oriFos);
             oriFos.close();
-            Log.e(TAG, "Wrote Raw image to " + oriFos.toString());
+            Log.e(TAG, "Wrote Raw image to " + jpegId.getAbsolutePath());
 
-            // Thumbs Image
-            FileOutputStream thumbsFos = new FileOutputStream(new File(String.format("%s%s%s.jpg", photoDirs[1], File.separator, uid)));
-            final int THUMBSIZE = FaceConstants.THUMBSIZE;
-            Bitmap ThumbImage = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(thumbsFos.toString()), THUMBSIZE, THUMBSIZE);
-            ThumbImage.compress(Bitmap.CompressFormat.PNG, 100, thumbsFos);
-            thumbsFos.close();
-            Log.e(TAG, "Wrote Thumbs image to " + thumbsFos.toString());
+            // Thumbnail Image
+            File thumbsFolder = new File(photoDirs[1]);
+            boolean success = true;
+            if (!thumbsFolder.exists()) {
+                success = thumbsFolder.mkdir();
+            }
+            if (success) {
+                File thumbId = new File(String.format("%s%s%s.jpg", photoDirs[1], File.separator, "th_"+uid));
+                FileOutputStream thumbsFos = new FileOutputStream(thumbId);
+                final int THUMBSIZE = FaceConstants.THUMBSIZE;
+                Bitmap ThumbImage = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(thumbId.getAbsolutePath()), THUMBSIZE, THUMBSIZE);
+//                ThumbImage.compress(Bitmap.CompressFormat.PNG, 100, thumbsFos);
+                thumbsFos.close();
+                Log.e(TAG, "Wrote Thumbs image to " + thumbId.getAbsolutePath());
+            } else {
+                Log.e(TAG, "saveToFile: "+"Folder Thumbs failed Created!" );
+            }
 
             return true;
 
@@ -85,6 +97,7 @@ public class BitmapUtil {
 
     private static boolean saveToDb(String uid, FacialProcessing faceVector) {
         ProfileImage profileImage = new ProfileImage();
+        Log.e(TAG, "saveToDb: uid "+uid );
 
 //        profileImage.setId(Long.valueOf(UUID.randomUUID().toString()));
         profileImage.setBaseEntityId(uid);

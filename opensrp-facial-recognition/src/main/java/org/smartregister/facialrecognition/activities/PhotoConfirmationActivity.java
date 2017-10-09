@@ -71,6 +71,7 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
     private Context context;
     private boolean cameraFront = false;
     private boolean setBitmapFR;
+    private int screenWidth, screenHeight;
 
 
     @Override
@@ -125,7 +126,7 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
         kiclient = extras.getParcelableArray("org.smartregister.facialrecognition.PhotoConfirmationActivity.kiclient");
         str_origin_class = extras.getString("org.smartregister.facialrecognition.PhotoConfirmationActivity.origin");
         updated = extras.getBoolean("org.smartregister.facialrecognition.PhotoConfirmationActivity.updated");
-        Log.e(TAG, "init_extras: updated "+updated );
+
     }
 
     private void initListeners() {
@@ -134,6 +135,7 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View arg0) {
+                Log.e(TAG, "onClick: "+ entityId );
 
                 if (!identifyPerson) {
 
@@ -198,8 +200,8 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
     }
 
     private void image_proc() {
-        int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
-        int screenHeight = context.getResources().getDisplayMetrics().heightPixels;
+        screenWidth = context.getResources().getDisplayMetrics().widthPixels;
+        screenHeight = context.getResources().getDisplayMetrics().heightPixels;
 
         storedBitmap = BitmapFactory.decodeByteArray(data, 0, data.length, null);
 
@@ -215,10 +217,16 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
         }
 
         mutableBitmap = storedBitmap.copy(Bitmap.Config.ARGB_8888, true);
-//        Bitmap scaled = Bitmap.createScaledBitmap(storedBitmap, screenWidth/2, screenHeight/2, false);
+        Bitmap scaled = Bitmap.createScaledBitmap(mutableBitmap, screenWidth/2, screenHeight/2, false);
 //        Bitmap scaled = Bitmap.createScaledBitmap(storedBitmap, screenWidth, screenHeight, true);
-//        confirmationView.setImageBitmap(scaled);
+        confirmationView.setImageBitmap(scaled);
+//        confirmationView.setImageBitmap(mutableBitmap);
 
+//        useSnapdragonSDK();
+
+    }
+
+    private void useSnapdragonSDK() {
         // FR
         objFace = OpenCameraActivity.faceProc;
 //        setBitmapFR = objFace.setBitmap(storedBitmap);
@@ -228,7 +236,7 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
         if (setBitmapFR){
             Log.e(TAG, "image_proc: "+"success" );
             if (faceDatas != null){
-              rects = new Rect[faceDatas.length];
+                rects = new Rect[faceDatas.length];
                 for (int i = 0; i < faceDatas.length; i++) {
                     Rect rect = faceDatas[i].rect;
                     rects[i] = rect;
@@ -296,7 +304,6 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
         } else {
             Log.e(TAG, "onCreate: SetBitmap objFace"+"Failed" );
         }
-
     }
 
     @Override

@@ -36,7 +36,6 @@ public class ProfileImage {
         this.updatedAt = new DateTime(updatedAt);
     }
 
-
     public void setId(Long _id) {
         this._id = _id;
     }

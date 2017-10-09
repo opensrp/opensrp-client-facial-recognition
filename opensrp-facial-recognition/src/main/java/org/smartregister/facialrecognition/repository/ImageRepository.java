@@ -1,6 +1,7 @@
 package org.smartregister.facialrecognition.repository;
 
 import android.database.Cursor;
+import android.net.Uri;
 import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -37,6 +38,11 @@ public class ImageRepository extends BaseRepository {
     public static String TYPE_Synced = "Synced";
     private static ImageRepository instance;
     private List<ProfileImage> allVectorImages;
+
+    /**
+     * The last ID case
+     */
+    public static final String LATEST_ID = "last_insert_rowid()";
 
     public ImageRepository(Repository repository) {
         super(repository);
@@ -98,4 +104,22 @@ public class ImageRepository extends BaseRepository {
 
         return facials;
     }
+
+    public Long findLatestRecordId(){
+        Cursor c = null;
+        long abc = 0;
+        try {
+            String sql = "SELECT max("+ID_COLUMN+") FROM "+PHOTO_TABLE_NAME+" GROUP BY "+ID_COLUMN+";";
+            c = getRepository().getReadableDatabase().rawQuery(sql, null);
+            abc = ((c != null && c.getCount() > 0))? c.getLong(c.getColumnIndex(ID_COLUMN)) : 0L ;
+
+        } catch (Exception e){
+            Log.e(TAG, "findLatestRecordId: "+ e.getMessage() );
+        } finally {
+            if (c != null) c.close();
+        }
+        return abc;
+    }
+
+
 }

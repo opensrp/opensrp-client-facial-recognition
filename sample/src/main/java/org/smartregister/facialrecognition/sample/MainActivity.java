@@ -12,6 +12,7 @@ import android.util.Pair;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+
 import org.smartregister.util.DateUtil;
 import org.smartregister.facialrecognition.FacialRecognitionLibrary;
 import org.smartregister.facialrecognition.activities.OpenCameraActivity;
@@ -49,12 +50,15 @@ public class MainActivity extends AppCompatActivity {
         if (!Tools.isSupport()) {
             fab_camera.setVisibility(View.INVISIBLE);
         }
+        final ImageRepository imgRepo = FacialRecognitionLibrary.getInstance().facialRepository();
+        final Long latestId = imgRepo.findLatestRecordId();
+
         fab_camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, OpenCameraActivity.class);
                 intent.putExtra("org.smartregister.facialrecognition.OpenCameraActivity.updated", false);
-                intent.putExtra("org.smartregister.facialrecognition.PhotoConfirmationActivity.id", "");
+                intent.putExtra("org.smartregister.facialrecognition.PhotoConfirmationActivity.id", Long.toString(latestId+1));
                 intent.putExtra("org.smartregister.facialrecognition.PhotoConfirmationActivity.identify", false);
                 intent.putExtra("org.smartregister.facialrecognition.PhotoConfirmationActivity.origin", TAG);
 
@@ -79,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<View.OnClickListener> listeners = new ArrayList<>();
 
         LinkedHashMap<Long, Pair<String, String>> facialMap = new LinkedHashMap<>();
+        ArrayList<Boolean> editEnabled = new ArrayList<>();
 
         List<ProfileImage> imageList = ir.findLast5(SampleUtil.ENTITY_ID);
         for (int i = 0; i < imageList.size(); i++) {
@@ -87,11 +92,12 @@ public class MainActivity extends AppCompatActivity {
             facialMap.put(facial.getId(), Pair.create("", facial.getFaceVector() ));
 
         }
+        Log.e(TAG, "refreshEditFacialLayout: map Size "+ facialMap.size() );
 
         if (facialMap.size() < 5 && facialMap.size() > 0){
             facialMap.put(0L, Pair.create(DateUtil.getDuration(0), SampleUtil.FACEVECTOR));
 
-            SampleUtil.createFacialWidget(MainActivity.this, facialWidget, facialMap, listeners);
+            SampleUtil.createFacialWidget(MainActivity.this, facialWidget, facialMap, listeners, editEnabled);
         }
 
 //        if (facialMap.size() > 0){

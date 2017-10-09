@@ -1,17 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
-    <TableRow>
-        <ImageView
-            android:id="@+id/img"
-            android:layout_width="50dp"
-            android:layout_height="50dp"/>
+    android:layout_height="match_parent"
+    android:id="@+id/table_list">
 
-        <TextView
-            android:id="@+id/txt"
-            android:layout_width="wrap_content"
-            android:layout_height="50dp" />
+    <TableRow
+        android:id="@+id/table_container"
+        tools:ignore="UselessParent">
+
+        <ImageView
+            android:id="@+id/profile_pic"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/woman_placeholder"
+            tools:ignore="ContentDescription" />
+
+
+        <LinearLayout
+            android:id="@+id/layout_info"
+            android:layout_marginLeft="20dp"
+            android:orientation="vertical"
+            tools:ignore="RtlHardcoded">
+
+            <TextView
+                android:id="@+id/full_name"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:text="Audy"
+                tools:ignore="HardcodedText"
+                style="@style/CustomFontTextViewStyle.ClientList.NoPadding"
+                android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+            <TextView
+                android:id="@+id/uid"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:text="123456"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
+
 
     </TableRow>
 </TableLayout>
