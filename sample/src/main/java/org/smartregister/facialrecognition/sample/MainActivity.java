@@ -13,6 +13,9 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import org.joda.time.DateTime;
+import org.smartregister.facialrecognition.domain.FacialWrapper;
+import org.smartregister.facialrecognition.listener.FacialActionListener;
 import org.smartregister.util.DateUtil;
 import org.smartregister.facialrecognition.FacialRecognitionLibrary;
 import org.smartregister.facialrecognition.activities.OpenCameraActivity;
@@ -22,13 +25,15 @@ import org.smartregister.facialrecognition.sample.util.SampleUtil;
 import org.smartregister.facialrecognition.utils.Tools;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements FacialActionListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-
+    private static final String DIALOG_TAG = "DIALOG_TAG_BLA";
+    Long latestId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,19 +55,15 @@ public class MainActivity extends AppCompatActivity {
         if (!Tools.isSupport()) {
             fab_camera.setVisibility(View.INVISIBLE);
         }
+
         final ImageRepository imgRepo = FacialRecognitionLibrary.getInstance().facialRepository();
-        final Long latestId = imgRepo.findLatestRecordId();
+        latestId = imgRepo.findLatestRecordId();
 
         fab_camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, OpenCameraActivity.class);
-                intent.putExtra("org.smartregister.facialrecognition.OpenCameraActivity.updated", false);
-                intent.putExtra("org.smartregister.facialrecognition.PhotoConfirmationActivity.id", Long.toString(latestId+1));
-                intent.putExtra("org.smartregister.facialrecognition.PhotoConfirmationActivity.identify", false);
-                intent.putExtra("org.smartregister.facialrecognition.PhotoConfirmationActivity.origin", TAG);
-
-                startActivityForResult(intent, 0);
+//                getOpenCameraActivity();
+                SampleUtil.showCameraDialog(MainActivity.this, view, DIALOG_TAG);
 
             }
         });
@@ -135,5 +136,36 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode==0 && resultCode== Activity.RESULT_OK){
 
         }
+    }
+
+    @Override
+    public void onFacialTaken(FacialWrapper tag) {
+
+        if (tag != null){
+            final ImageRepository facialRepository = FacialRecognitionLibrary.getInstance().facialRepository();
+            ProfileImage profileImage = new ProfileImage();
+            if (tag.getDbKey() != null){
+                profileImage = facialRepository.find(tag.getDbKey());
+            }
+//            profileImage.setBaseEntityId(SampleUtil.ENTITY_ID);
+            profileImage.setFaceVector(tag.getFaceVector());
+            profileImage.setCreatedAt(Calendar.getInstance().getTimeInMillis());
+//            facialRepository.add(profileImage);
+            facialRepository.add(profileImage);
+            tag.setDbKey(profileImage.getId());
+        } else {
+            Log.e(TAG, "onFacialTaken: "+ "tag not NULL " );
+        }
+    }
+
+    public void getOpenCameraActivity() {
+        Intent intent = new Intent(MainActivity.this, OpenCameraActivity.class);
+        intent.putExtra("org.smartregister.facialrecognition.OpenCameraActivity.updated", false);
+        intent.putExtra("org.smartregister.facialrecognition.PhotoConfirmationActivity.id", Long.toString(latestId+1));
+        intent.putExtra("org.smartregister.facialrecognition.PhotoConfirmationActivity.identify", false);
+        intent.putExtra("org.smartregister.facialrecognition.PhotoConfirmationActivity.origin", TAG);
+
+        startActivityForResult(intent, 0);
+
     }
 }

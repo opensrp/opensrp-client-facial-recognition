@@ -34,10 +34,13 @@ public class BitmapUtil {
 
     public static final String TAG = BitmapUtil.class.getSimpleName();
     private static ImageRepository imageRepo;
+//    private static ImageRepository imageRepo = (ImageRepository) org.smartregister.Context.imageRepository();
 
     public void BitmapUtil(){
 
         imageRepo = ImageRepository.getInstance();
+//        imageRepo = org.smartregister.Context.getInstance().imageRepository();
+        Log.e(TAG, "BitmapUtil: "+ imageRepo );
 
     }
 
@@ -96,14 +99,17 @@ public class BitmapUtil {
     }
 
     private static boolean saveToDb(String uid, FacialProcessing faceVector) {
+        imageRepo = ImageRepository.getInstance();
+
         ProfileImage profileImage = new ProfileImage();
         Log.e(TAG, "saveToDb: uid "+uid );
+        Log.e(TAG, "saveToDb: imagerepo "+ imageRepo );
 
-//        profileImage.setId(Long.valueOf(UUID.randomUUID().toString()));
         profileImage.setBaseEntityId(uid);
         profileImage.setSyncStatus(String.valueOf(ImageRepository.TYPE_Unsynced));
 
-        imageRepo.add(profileImage, uid);
+//        imageRepo.add(profileImage, uid);
+
         return false;
     }
 

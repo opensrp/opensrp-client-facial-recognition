@@ -1,7 +1,5 @@
 package org.smartregister.facialrecognition.domain;
 
-import org.joda.time.DateTime;
-
 /**
  * Created by wildan on 9/14/17.
  */
@@ -9,7 +7,7 @@ import org.joda.time.DateTime;
 public class ProfileImage {
     private Long _id;
     private String baseEntityId, faceVector, syncStatus;
-    private DateTime createdAt, updatedAt;
+    private long createdAt, updatedAt;
 
     private String anmId;
     private String contenttype;
@@ -32,8 +30,8 @@ public class ProfileImage {
         this.baseEntityId = baseEntityId;
         this.faceVector = faceVector;
         this.syncStatus = syncStatus;
-        this.createdAt = new DateTime(createdAt);
-        this.updatedAt = new DateTime(updatedAt);
+        this.createdAt = new Long(createdAt);
+        this.updatedAt = new Long(updatedAt);
     }
 
     public void setId(Long _id) {
@@ -68,19 +66,19 @@ public class ProfileImage {
         return syncStatus;
     }
 
-    public void setCreatedAt(DateTime createdAt) {
+    public void setCreatedAt(Long createdAt) {
         this.createdAt = createdAt;
     }
 
-    public DateTime getCreatedAt() {
+    public Long getCreatedAt() {
         return createdAt;
     }
 
-    public void setUpdatedAt(DateTime updatedAt) {
+    public void setUpdatedAt(Long updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    public DateTime getUpdatedAt() {
+    public Long getUpdatedAt() {
         return updatedAt;
     }
 

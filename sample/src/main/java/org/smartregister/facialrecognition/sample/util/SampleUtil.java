@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.smartregister.facialrecognition.domain.FacialWrapper;
 import org.smartregister.facialrecognition.sample.MainActivity;
 import org.smartregister.facialrecognition.sample.R;
 
@@ -56,4 +57,10 @@ public class SampleUtil {
         label.setText(labelString);
         value.setText(valueString);
         return rows;}
+
+    public static void showCameraDialog(Activity context, View view, String dialogTag) {
+        FacialWrapper facialWrapper = view.getTag() != null ? (FacialWrapper) view.getTag() : new FacialWrapper();
+
+//        RecordFacialDialogFragment facialDialogFragment =
+    }
 }

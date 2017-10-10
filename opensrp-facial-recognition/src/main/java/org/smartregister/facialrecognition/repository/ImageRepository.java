@@ -6,11 +6,14 @@ import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.smartregister.facialrecognition.domain.ProfileImage;
 import org.smartregister.repository.BaseRepository;
 import org.smartregister.repository.Repository;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -55,6 +58,20 @@ public class ImageRepository extends BaseRepository {
 
     public static ImageRepository getInstance() {
         return instance;
+    }
+
+    public void add(ProfileImage profileImage) {
+        try {
+            if (profileImage == null) return;
+
+            if (StringUtils.isBlank(profileImage.getSyncStatus())) profileImage.setSyncStatus(TYPE_Unsynced);
+
+            if (profileImage.getUpdatedAt() == null) profileImage.setUpdatedAt(Calendar.getInstance().getTimeInMillis());
+
+        } catch (Exception e){
+            Log.e(TAG, "add: "+ Log.getStackTraceString(e) );
+        }
+
     }
 
     public void add(ProfileImage profileImage, String entityId) {}
@@ -121,5 +138,20 @@ public class ImageRepository extends BaseRepository {
         return abc;
     }
 
+    public ProfileImage find(Long caseId){
+        ProfileImage profileImage = null;
+        Cursor cursor = null;
+        try {
+            cursor = getRepository().getReadableDatabase().query(PHOTO_TABLE_NAME, PHOTO_TABLE_COLUMNS, ID_COLUMN + " = ?", new String[]{caseId.toString()}, null, null, null, null);
+            List<ProfileImage> profileImages = readAllFacials(cursor);
+            if (!profileImages.isEmpty()) profileImage = profileImages.get(0);
+
+        } catch (Exception e){
+            Log.e(TAG, "find: "+Log.getStackTraceString(e) );
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+        return profileImage;
+    }
 
 }

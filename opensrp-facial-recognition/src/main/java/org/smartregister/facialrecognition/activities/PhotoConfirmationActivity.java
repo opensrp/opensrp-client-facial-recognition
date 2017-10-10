@@ -12,6 +12,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.AttributeSet;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
@@ -26,11 +27,14 @@ import com.qualcomm.snapdragon.sdk.face.FaceData;
 import com.qualcomm.snapdragon.sdk.face.FacialProcessing;
 
 import org.smartregister.facialrecognition.R;
+import org.smartregister.facialrecognition.domain.FacialWrapper;
+import org.smartregister.facialrecognition.listener.FacialActionListener;
 import org.smartregister.facialrecognition.util.BitmapUtil;
 import org.smartregister.facialrecognition.utils.FaceConstants;
 import org.smartregister.facialrecognition.utils.Tools;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -72,7 +76,10 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
     private boolean cameraFront = false;
     private boolean setBitmapFR;
     private int screenWidth, screenHeight;
+    private FacialActionListener listener;
+    private FacialWrapper tag;
 
+    public static final String WRAPPER_TAG = "tag";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +98,24 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
 
         image_proc();
 
+//        Bundle bundle = savedInstanceState.;
+//
+//        Serializable serializable = bundle.getSerializable(WRAPPER_TAG);
+//
+//        if (serializable != null && serializable instanceof FacialWrapper) {
+//            tag = (FacialWrapper) serializable;
+//        }
+//
+//        if (tag == null) {
+//            Log.e(TAG, "onCreate: "+ "Tag NULL" );
+//        }
+
         initListeners();
+    }
+
+    @Override
+    public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
+        return super.onCreateView(parent, name, context, attrs);
     }
 
     private void init_gui() {
@@ -135,12 +159,16 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View arg0) {
-                Log.e(TAG, "onClick: "+ entityId );
 
                 if (!identifyPerson) {
 
 //                    Tools.saveAndClose(getApplicationContext(), entityId, updated, objFace, arrayPossition, storedBitmap, str_origin_class);
                     BitmapUtil.saveAndClose(getApplicationContext(), entityId, updated, objFace, arrayPossition, storedBitmap, str_origin_class);
+
+                    Log.e(TAG, "onClick: listener "+ listener );
+
+//                    tag.setFaceVector("123");
+//                    listener.onFacialTaken(tag);
 
                     // Back To Detail Activity
                     Intent i = new Intent();
