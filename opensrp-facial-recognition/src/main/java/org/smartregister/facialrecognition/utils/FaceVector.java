@@ -1,7 +1,7 @@
 package org.smartregister.facialrecognition.utils;
 
 /**
- * Created by sid on 2/22/17.
+ * Created by wildan on 2/22/17.
  */
 public class FaceVector {
 

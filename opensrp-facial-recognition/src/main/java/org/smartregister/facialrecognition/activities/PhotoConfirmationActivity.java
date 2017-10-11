@@ -12,12 +12,14 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.AttributeSet;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.balysv.materialmenu.MaterialMenuDrawable;
@@ -25,11 +27,14 @@ import com.qualcomm.snapdragon.sdk.face.FaceData;
 import com.qualcomm.snapdragon.sdk.face.FacialProcessing;
 
 import org.smartregister.facialrecognition.R;
+import org.smartregister.facialrecognition.domain.FacialWrapper;
+import org.smartregister.facialrecognition.listener.FacialActionListener;
 import org.smartregister.facialrecognition.util.BitmapUtil;
 import org.smartregister.facialrecognition.utils.FaceConstants;
 import org.smartregister.facialrecognition.utils.Tools;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -69,7 +74,12 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
     private MaterialMenuDrawable materialMenu;
     private Context context;
     private boolean cameraFront = false;
+    private boolean setBitmapFR;
+    private int screenWidth, screenHeight;
+    private FacialActionListener listener;
+    private FacialWrapper tag;
 
+    public static final String WRAPPER_TAG = "tag";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,29 +98,24 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
 
         image_proc();
 
+//        Bundle bundle = savedInstanceState.;
+//
+//        Serializable serializable = bundle.getSerializable(WRAPPER_TAG);
+//
+//        if (serializable != null && serializable instanceof FacialWrapper) {
+//            tag = (FacialWrapper) serializable;
+//        }
+//
+//        if (tag == null) {
+//            Log.e(TAG, "onCreate: "+ "Tag NULL" );
+//        }
+
         initListeners();
     }
 
-    private void image_proc() {
-        int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
-        int screenHeight = context.getResources().getDisplayMetrics().heightPixels;
-
-        storedBitmap = BitmapFactory.decodeByteArray(data, 0, data.length, null);
-
-        Matrix mat = new Matrix();
-
-        if (!cameraFront) {
-            mat.postRotate(angle == 90 ? 270 : (angle == 180 ? 180 : 0));
-//            mat.postScale(-1, 1);
-            storedBitmap = Bitmap.createBitmap(storedBitmap, 0, 0, storedBitmap.getWidth(), storedBitmap.getHeight(), mat, true);
-        } else {
-            mat.postRotate(angle == 90 ? 90 : (angle == 180 ? 180 : 0));
-            storedBitmap = Bitmap.createBitmap(storedBitmap, 0, 0, storedBitmap.getWidth(), storedBitmap.getHeight(), mat, true);
-        }
-
-//        confirmationView.setImageBitmap(storedBitmap);
-        Bitmap scaled = Bitmap.createScaledBitmap(storedBitmap, screenWidth,screenHeight, true);
-        confirmationView.setImageBitmap(scaled);
+    @Override
+    public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
+        return super.onCreateView(parent, name, context, attrs);
     }
 
     private void init_gui() {
@@ -129,6 +134,7 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
 //        });
 //        materialMenu = new MaterialMenuDrawable(this, Color.WHITE, MaterialMenuDrawable.Stroke.THIN);
 //        toolbar.setNavigationIcon(materialMenu);
+
     }
 
     /**
@@ -144,191 +150,6 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
         kiclient = extras.getParcelableArray("org.smartregister.facialrecognition.PhotoConfirmationActivity.kiclient");
         str_origin_class = extras.getString("org.smartregister.facialrecognition.PhotoConfirmationActivity.origin");
         updated = extras.getBoolean("org.smartregister.facialrecognition.PhotoConfirmationActivity.updated");
-        Log.e(TAG, "init_extras: updated "+updated );
-    }
-
-    private void process_img() {
-
-        storedBitmap = BitmapFactory.decodeByteArray(data, 0, data.length, null);
-//        Log.e(TAG, "process_img: storedBitmap "+ storedBitmap ); // 720 x 1280
-//        Log.e(TAG, "process_img: storedBitmap h "+ storedBitmap.getHeight() );
-//        Log.e(TAG, "process_img: storedBitmap w "+ storedBitmap.getWidth() );
-        objFace = OpenCameraActivity.faceProc;
-
-        Matrix mat = new Matrix();
-        if (!cameraFront) {
-            Log.e(TAG, "process_img: FALSE" );
-            mat.postRotate(angle == 0 ? 270 : (angle == 180 ? 180 : 0));
-            mat.postScale(-1, 1);
-            storedBitmap = Bitmap.createBitmap(storedBitmap, 0, 0, storedBitmap.getWidth(), storedBitmap.getHeight(), mat, true);
-        } else {
-            Log.e(TAG, "process_img: TRUE" );
-            mat.postRotate(angle == 90 ? 90 : (angle == 180 ? 180 : 0));
-            storedBitmap = Bitmap.createBitmap(storedBitmap, 0, 0, storedBitmap.getWidth(), storedBitmap.getHeight(), mat, true);
-        }
-//        TODO : Image from gallery
-
-//        Retrieve data from Local Storage
-        clientList = OpenCameraActivity.retrieveHash(getApplicationContext());
-
-        boolean setBitmapResult = objFace.setBitmap(storedBitmap);
-        faceDatas = objFace.getFaceData();
-
-        Log.e(TAG, "process_img: confirmationView w/h "+confirmationView.getWidth() +"/"+confirmationView.getHeight() ); // w/h 1536/1872
-
-        /**
-         * Set Height and Width
-         */
-        int imageViewSurfaceWidth = storedBitmap.getWidth()/2;
-        int imageViewSurfaceHeight = storedBitmap.getHeight()/2;
-//        int imageViewSurfaceWidth = confirmationView.getWidth();
-//        int imageViewSurfaceHeight = confirmationView.getHeight();
-
-        // Face Confirmation view purpose
-        workingBitmap = Bitmap.createScaledBitmap(storedBitmap, imageViewSurfaceWidth, imageViewSurfaceHeight, false);
-
-        mutableBitmap = workingBitmap.copy(Bitmap.Config.ARGB_8888, true);
-
-//        mutableBitmap = storedBitmap.copy(Bitmap.Config.ARGB_8888, true);
-//        Bitmap tempBitmap = Bitmap.createScaledBitmap(storedBitmap,
-//                (storedBitmap.getWidth() / 20), (storedBitmap.getHeight() / 20),
-//                false);
-
-        confirmationView.setImageBitmap(mutableBitmap);
-//        confirmationView.setImageBitmap(tempBitmap);
-
-        objFace.normalizeCoordinates(imageViewSurfaceWidth, imageViewSurfaceHeight);
-
-        // Set Bitmap Success
-        if(setBitmapResult){
-
-            // Only if Face Data Exist
-            if(faceDatas != null){
-//                Log.e(TAG, "onCreate: faceDatas "+faceDatas.length );
-                rects = new Rect[faceDatas.length];
-
-                for (int i = 0; i < faceDatas.length; i++) {
-                    Rect rect = faceDatas[i].rect;
-                    rects[i] = rect;
-
-                    int matchRate = faceDatas[i].getRecognitionConfidence();
-
-                    float pixelDensity = getResources().getDisplayMetrics().density; // 2.0
-
-//                    Identify or new record
-                    if (identifyPerson) {
-                        String selectedPersonId = Integer.toString(faceDatas[i].getPersonId());
-                        Iterator<HashMap.Entry<String, String>> iter = clientList.entrySet().iterator();
-                        // Default name is the person is unknown
-                        selectedPersonName = "Not Identified";
-                        while (iter.hasNext()) {
-                            Log.e(TAG, "process_img: Identified" );
-                            HashMap.Entry<String, String> entry = iter.next();
-                            if (entry.getValue().equals(selectedPersonId)) {
-                                selectedPersonName = entry.getKey();
-                            }
-                        }
-
-                        Toast.makeText(getApplicationContext(), selectedPersonName, Toast.LENGTH_SHORT).show();
-
-//                        Draw Info on Image
-                        Tools.drawInfo(rect, mutableBitmap, pixelDensity, selectedPersonName);
-
-                        showDetailUser(selectedPersonName);
-
-                    } else {
-
-                        // Not Identifiying, do new record.
-//                        Draw Info on Image
-                        Log.e(TAG, "process_img: rect "+ rect.toString() ); // Rect(125, 409 - 847, 951)
-                        Tools.drawRectFace(rect, mutableBitmap, pixelDensity);
-
-                        Log.e(TAG, "onCreate: PersonId "+faceDatas[i].getPersonId() );
-
-                        // Check Detected existing face
-                        if(faceDatas[i].getPersonId() < 0){
-
-                            arrayPossition = i;
-
-                        } else {
-
-                            showPersonInfo(matchRate);
-
-                        }
-
-//                        TODO: asign selectedPersonName to search
-                        // Applied Image that came in to the view.
-                        // Face only
-//                        confirmationView.setImageBitmap(storedBitmap);
-
-                        // Face and Rect
-//                        confirmationView.setImageBitmap(mutableBitmap);
-                        Drawable drawable = confirmationView.getDrawable();//you should call after the bitmap drawn
-                        Rect bounds = drawable.getBounds();
-
-                    } // end if-else mode Identify {True or False}
-
-                } // end for count ic_faces
-
-            } else {
-
-                Log.e(TAG, "onCreate: faceDatas "+"Null" );
-                Toast.makeText(PhotoConfirmationActivity.this, "No Face Detected", Toast.LENGTH_SHORT).show();
-                Intent resultIntent = new Intent();
-                setResult(RESULT_CANCELED, resultIntent);
-//                PhotoConfirmationActivity.this.finish();
-            }
-
-        } else {
-
-            Log.e(TAG, "onCreate: SetBitmap objFace"+"Failed" );
-
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.image_confirmation, menu);
-        return true;
-    }
-
-    public void showDetailUser(String selectedPersonName) {
-
-        Log.e(TAG, "showDetailUser: " );
-        Class<?> origin_class = this.getClass();
-
-//        if(str_origin_class.equals(NativeKISmartRegisterFragment.class.getSimpleName())){
-//            origin_class = NativeKISmartRegisterActivity.class;
-//        } else if(str_origin_class.equals(NativeKBSmartRegisterFragment.class.getSimpleName())){
-//            origin_class = NativeKBSmartRegisterActivity.class;
-//        } else if(str_origin_class.equals(NativeKIAnakSmartRegisterFragment.class.getSimpleName())){
-//            origin_class = NativeKIAnakSmartRegisterActivity.class;
-//        } else if(str_origin_class.equals(NativeKIANCSmartRegisterFragment.class.getSimpleName())){
-//            origin_class = NativeKIANCSmartRegisterActivity.class;
-//        } else if(str_origin_class.equals(NativeKIPNCSmartRegisterFragment.class.getSimpleName())){
-//            origin_class = NativeKIPNCSmartRegisterActivity.class;
-//        }
-
-        Intent intent = new Intent(PhotoConfirmationActivity.this, origin_class);
-        intent.putExtra("org.ei.opensrp.indonesia.face.face_mode", true);
-        intent.putExtra("org.ei.opensrp.indonesia.face.base_id", selectedPersonName);
-
-        startActivity(intent);
-
-    }
-
-    private void showPersonInfo(int recognitionConfidence) {
-        Log.e(TAG, "showPersonInfo: Similar face found " +
-                Integer.toString(recognitionConfidence));
-
-        AlertDialog.Builder builder= new AlertDialog.Builder(this);
-
-        builder.setTitle("Are you Sure?");
-        builder.setMessage("Similar Face Found! : Confidence "+recognitionConfidence);
-        builder.setNegativeButton("CANCEL", null);
-        builder.show();
-        confirmButton.setVisibility(View.INVISIBLE);
 
     }
 
@@ -342,7 +163,14 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
                 if (!identifyPerson) {
 
 //                    Tools.saveAndClose(getApplicationContext(), entityId, updated, objFace, arrayPossition, storedBitmap, str_origin_class);
+
+                    Log.e(TAG, "onClick: "+ entityId);
                     BitmapUtil.saveAndClose(getApplicationContext(), entityId, updated, objFace, arrayPossition, storedBitmap, str_origin_class);
+
+//                    Log.e(TAG, "onClick: listener "+ listener );
+
+//                    tag.setFaceVector("123");
+//                    listener.onFacialTaken(tag);
 
                     // Back To Detail Activity
                     Intent i = new Intent();
@@ -400,6 +228,160 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
         });
 
     }
+
+    private void image_proc() {
+        screenWidth = context.getResources().getDisplayMetrics().widthPixels;
+        screenHeight = context.getResources().getDisplayMetrics().heightPixels;
+
+        storedBitmap = BitmapFactory.decodeByteArray(data, 0, data.length, null);
+
+        Matrix mat = new Matrix();
+
+        if (!cameraFront) {
+            mat.postRotate(angle == 90 ? 270 : (angle == 180 ? 180 : 0));
+//            mat.postScale(-1, 1);
+            storedBitmap = Bitmap.createBitmap(storedBitmap, 0, 0, storedBitmap.getWidth(), storedBitmap.getHeight(), mat, true);
+        } else {
+            mat.postRotate(angle == 90 ? 90 : (angle == 180 ? 180 : 0));
+            storedBitmap = Bitmap.createBitmap(storedBitmap, 0, 0, storedBitmap.getWidth(), storedBitmap.getHeight(), mat, true);
+        }
+
+        mutableBitmap = storedBitmap.copy(Bitmap.Config.ARGB_8888, true);
+        Bitmap scaled = Bitmap.createScaledBitmap(mutableBitmap, screenWidth/2, screenHeight/2, false);
+//        Bitmap scaled = Bitmap.createScaledBitmap(storedBitmap, screenWidth, screenHeight, true);
+        confirmationView.setImageBitmap(scaled);
+//        confirmationView.setImageBitmap(mutableBitmap);
+
+//        useSnapdragonSDK();
+
+    }
+
+    private void useSnapdragonSDK() {
+        // FR
+        objFace = OpenCameraActivity.faceProc;
+//        setBitmapFR = objFace.setBitmap(storedBitmap);
+        setBitmapFR = objFace.setBitmap(mutableBitmap);
+        faceDatas = objFace.getFaceData();
+
+        if (setBitmapFR){
+            Log.e(TAG, "image_proc: "+"success" );
+            if (faceDatas != null){
+                rects = new Rect[faceDatas.length];
+                for (int i = 0; i < faceDatas.length; i++) {
+                    Rect rect = faceDatas[i].rect;
+                    rects[i] = rect;
+
+                    int matchRate = faceDatas[i].getRecognitionConfidence();
+
+                    float pixelDensity = getResources().getDisplayMetrics().density; // 2.0
+
+                    // Mode : Create, Read(Identified), Updated
+                    if (identifyPerson){
+                        String selectedPersonId = Integer.toString(faceDatas[i].getPersonId());
+                        Iterator<HashMap.Entry<String, String>> iter = clientList.entrySet().iterator();
+                        // Default name is the person is unknown
+                        selectedPersonName = "Unknown";
+                        while (iter.hasNext()) {
+                            Log.e(TAG, "image_proc: "+ "Matching" );
+                            HashMap.Entry<String, String> entry = iter.next();
+                            if (entry.getValue().equals(selectedPersonId)) {
+                                selectedPersonName = entry.getKey();
+                            }
+                        }
+
+                        Toast.makeText(getApplicationContext(), selectedPersonName, Toast.LENGTH_SHORT).show();
+
+//                        Draw Info on Image
+                        BitmapUtil.drawInfo(rect, mutableBitmap, pixelDensity, selectedPersonName);
+                        Log.e(TAG, "image_proc: "+i );
+
+                        showDetailUser(selectedPersonName);
+                    } else {
+                        // Not Identifiying, do new record.
+//                        Draw Info on Image
+                        Log.e(TAG, "image_proc: rect "+ rect.toString() ); // Rect(125, 409 - 847, 951)
+                        BitmapUtil.drawRectFace(rects[i], mutableBitmap, pixelDensity);
+
+                        // Check Detected existing face
+                        if(faceDatas[i].getPersonId() < 0){
+
+                            arrayPossition = i;
+
+                        } else {
+
+                            showPersonInfo(matchRate);
+
+                        }
+
+                        // Face only
+//                        confirmationView.setImageBitmap(storedBitmap);
+                        // Face and Rect
+//                        confirmationView.setImageBitmap(mutableBitmap);
+                        Bitmap scaled = Bitmap.createScaledBitmap(mutableBitmap, screenWidth, screenHeight, false);
+                        confirmationView.setImageBitmap(scaled);
+                        Drawable drawable = confirmationView.getDrawable();//you should call after the bitmap drawn
+                        Rect bounds = drawable.getBounds();
+                    }
+                }
+            } else {
+                Log.e(TAG, "image_proc: "+ "face Data null" );
+                Log.e(TAG, "onCreate: faceDatas "+"Null" );
+                Toast.makeText(PhotoConfirmationActivity.this, "No Face Detected", Toast.LENGTH_SHORT).show();
+                Intent resultIntent = new Intent();
+                setResult(RESULT_CANCELED, resultIntent);
+//                PhotoConfirmationActivity.this.finish();
+            }
+        } else {
+            Log.e(TAG, "onCreate: SetBitmap objFace"+"Failed" );
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.image_confirmation, menu);
+        return true;
+    }
+
+    public void showDetailUser(String selectedPersonName) {
+
+        Log.e(TAG, "showDetailUser: " );
+        Class<?> origin_class = this.getClass();
+
+//        if(str_origin_class.equals(NativeKISmartRegisterFragment.class.getSimpleName())){
+//            origin_class = NativeKISmartRegisterActivity.class;
+//        } else if(str_origin_class.equals(NativeKBSmartRegisterFragment.class.getSimpleName())){
+//            origin_class = NativeKBSmartRegisterActivity.class;
+//        } else if(str_origin_class.equals(NativeKIAnakSmartRegisterFragment.class.getSimpleName())){
+//            origin_class = NativeKIAnakSmartRegisterActivity.class;
+//        } else if(str_origin_class.equals(NativeKIANCSmartRegisterFragment.class.getSimpleName())){
+//            origin_class = NativeKIANCSmartRegisterActivity.class;
+//        } else if(str_origin_class.equals(NativeKIPNCSmartRegisterFragment.class.getSimpleName())){
+//            origin_class = NativeKIPNCSmartRegisterActivity.class;
+//        }
+
+        Intent intent = new Intent(PhotoConfirmationActivity.this, origin_class);
+        intent.putExtra("org.ei.opensrp.indonesia.face.face_mode", true);
+        intent.putExtra("org.ei.opensrp.indonesia.face.base_id", selectedPersonName);
+
+        startActivity(intent);
+
+    }
+
+    private void showPersonInfo(int recognitionConfidence) {
+        Log.e(TAG, "showPersonInfo: Similar face found " +
+                Integer.toString(recognitionConfidence));
+
+        AlertDialog.Builder builder= new AlertDialog.Builder(this);
+
+        builder.setTitle("Are you Sure?");
+        builder.setMessage("Similar Face Found! : Confidence "+recognitionConfidence);
+        builder.setNegativeButton("CANCEL", null);
+        builder.show();
+        confirmButton.setVisibility(View.INVISIBLE);
+
+    }
+
 
     /*
     Save File and DB

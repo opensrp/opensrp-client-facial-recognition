@@ -9,7 +9,7 @@ import org.smartregister.AllConstants;
 import org.smartregister.repository.Repository;
 import org.smartregister.facialrecognition.repository.ImageRepository;
 /**
- * Created by sid on 10/2/17.
+ * Created by wildan on 10/2/17.
  */
 
 public class SampleRepository extends Repository {

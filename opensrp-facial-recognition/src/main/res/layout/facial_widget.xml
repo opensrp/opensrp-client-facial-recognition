@@ -2,16 +2,26 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/tv_title_list"
-        android:text="@string/last_5_face"/>
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_title_list"
+            android:text="@string/last_5_face"
+            style="@style/CustomFontTextViewStyle.ClientList.NoPadding"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            />
+    </LinearLayout>
+
 
     <LinearLayout
         android:id="@+id/facevalues"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:layout_marginRight="150dp"
         android:orientation="vertical">
 
