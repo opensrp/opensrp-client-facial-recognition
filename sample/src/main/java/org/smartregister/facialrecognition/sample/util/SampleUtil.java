@@ -3,12 +3,10 @@ package org.smartregister.facialrecognition.sample.util;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -17,12 +15,13 @@ import org.smartregister.facialrecognition.domain.FacialWrapper;
 import org.smartregister.facialrecognition.sample.MainActivity;
 import org.smartregister.facialrecognition.sample.R;
 import org.smartregister.facialrecognition.util.BitmapUtil;
-import org.smartregister.view.activity.DrishtiApplication;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -41,6 +40,7 @@ public class SampleUtil {
         int i = 0;
         for (Map.Entry<Long, Pair<String, String>> entry : last_five_facial_map.entrySet()){
 
+            Log.e(TAG, "createFacialWidget: "+ i );
             Pair<String, String> pair = entry.getValue();
             View view = createTableRowForFacial(context, sampleLayout, entry.getKey(), pair.first, pair.second, editenabled.get(i), listeners.get(i));
             sampleLayout.addView(view);
@@ -64,12 +64,18 @@ public class SampleUtil {
         Log.e(TAG, "createTableRowForFacial: "+ uid );
         // Set Text
         try {
-            Bitmap photo = BitmapFactory.decodeFile(String.format("%s%s%s.jpg", BitmapUtil.photoDirs[1], File.separator, "th_"+uid));
+            String photoPath = String.format("%s%s%s.jpg", BitmapUtil.photoDirs[1], File.separator, "th_"+uid);
+            InputStream is = new File(photoPath).toURI().toURL().openStream();
+//            Bitmap photo = BitmapFactory.decodeFile(photoPath);
+            Bitmap photo = BitmapFactory.decodeStream(is);
             if (photo != null) profile_pic.setImageBitmap(photo);
 
-        } catch (Exception e){
+        } catch (FileNotFoundException e){
             Log.e(TAG, "createTableRowForFacial: "+ Log.getStackTraceString(e) );
+        } catch (IOException e){
+            e.printStackTrace();
         }
+
         label.setText(labelString);
         value.setText(valueString);
 

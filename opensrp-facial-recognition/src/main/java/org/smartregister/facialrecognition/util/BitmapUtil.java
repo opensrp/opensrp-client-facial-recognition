@@ -35,16 +35,8 @@ public class BitmapUtil {
     public static String[] photoDirs = new String[]{DrishtiApplication.getAppDir(),
             DrishtiApplication.getAppDir() + File.separator + ".thumbs"};
     public static final String TAG = BitmapUtil.class.getSimpleName();
-//    private static ImageRepository imageRepo;
-//    private static ImageRepository imageRepo = (ImageRepository) org.smartregister.Context.imageRepository();
-
 
     public void BitmapUtil(){
-
-//        imageRepo = ImageRepository.getInstance();
-//        imageRepo = org.smartregister.Context.getInstance().imageRepository();
-//        Log.e(TAG, "BitmapUtil: "+ imageRepo );
-
     }
 
     public static void saveAndClose(Context mContext, String uid, boolean updated, FacialProcessing objFace, int arrayPossition, Bitmap mBitmap, String str_origin_class) {
@@ -53,7 +45,6 @@ public class BitmapUtil {
             Log.e(TAG, "saveAndClose: " + "Saved File Success! uid= " + uid);
             if (saveToDb(uid, objFace)) Log.e(TAG, "saveAndClose: " + "Stored DB Success!");
         }
-
 
     }
 
@@ -137,8 +128,6 @@ public class BitmapUtil {
     }
 
     public static void drawInfo(Rect rect, Bitmap mutableBitmap, float pixelDensity, String personName) {
-//        Log.e(TAG, "drawInfo: rect " + rect);
-//        Log.e(TAG, "drawInfo: bitmap" + mutableBitmap);
 
         // Extra padding around the faceRects
         rect.set(rect.left -= 20, rect.top -= 20, rect.right += 20, rect.bottom += 20);

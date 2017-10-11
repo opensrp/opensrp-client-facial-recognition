@@ -382,7 +382,6 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
 
     }
 
-
     /*
     Save File and DB
      */
@@ -434,18 +433,6 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(FaceConstants.ALBUM_ARRAY, Arrays.toString(albumBuffer));
         editor.apply();
-    }
-
-    public void encodeBitmapAndSaveToFirebase(Bitmap bitmap) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        String imageEncoded = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-//        DatabaseReference ref = FirebaseDatabase.getInstance()
-//                .getReference(AllConstantsINA.FIREBASE_OPENSRP_INA)
-//                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-//                .child(mRestaurant.getPushId())
-//                .child("imageUrl");
-//        ref.setValue(imageEncoded);
     }
 
 }

@@ -866,7 +866,6 @@ public class OpenCameraActivity extends Activity implements PreviewCallback {
         if (data != null) {
             intent.putExtra("org.smartregister.facialrecognition.PhotoConfirmationActivity", data);
         }
-        Log.e(TAG, "savePicture: entityId "+ entityId );
         intent.putExtra("org.smartregister.facialrecognition.PhotoConfirmationActivity.switchCamera", switchCamera);
         intent.putExtra("org.smartregister.facialrecognition.PhotoConfirmationActivity.orientation", displayAngle);
         intent.putExtra("org.smartregister.facialrecognition.PhotoConfirmationActivity.id", entityId);

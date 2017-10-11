@@ -133,7 +133,7 @@ public class ImageRepository extends BaseRepository {
 
     public List<ProfileImage> findLast5(String entityid) {
         Cursor cursor = getRepository().getReadableDatabase().query(
-                PHOTO_TABLE_NAME, PHOTO_TABLE_COLUMNS, BASE_ENTITY_ID_COLUMN + " = ? " + COLLATE_NOCASE, new String[]{entityid}, null, null, UPDATED_AT_COLUMN + COLLATE_NOCASE + " DESC", null);
+                PHOTO_TABLE_NAME, PHOTO_TABLE_COLUMNS, null, null, null, null, UPDATED_AT_COLUMN + COLLATE_NOCASE + " DESC", "5");
 
         return readAllFacials(cursor);
 
