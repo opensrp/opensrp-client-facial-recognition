@@ -14,6 +14,7 @@ import android.util.Log;
 
 import com.qualcomm.snapdragon.sdk.face.FacialProcessing;
 
+import org.smartregister.facialrecognition.FacialRecognitionLibrary;
 import org.smartregister.facialrecognition.domain.ProfileImage;
 import org.smartregister.facialrecognition.repository.ImageRepository;
 import org.smartregister.facialrecognition.utils.FaceConstants;
@@ -31,23 +32,25 @@ import java.util.UUID;
  */
 
 public class BitmapUtil {
-
+    public static String[] photoDirs = new String[]{DrishtiApplication.getAppDir(),
+            DrishtiApplication.getAppDir() + File.separator + ".thumbs"};
     public static final String TAG = BitmapUtil.class.getSimpleName();
-    private static ImageRepository imageRepo;
+//    private static ImageRepository imageRepo;
 //    private static ImageRepository imageRepo = (ImageRepository) org.smartregister.Context.imageRepository();
+
 
     public void BitmapUtil(){
 
-        imageRepo = ImageRepository.getInstance();
+//        imageRepo = ImageRepository.getInstance();
 //        imageRepo = org.smartregister.Context.getInstance().imageRepository();
-        Log.e(TAG, "BitmapUtil: "+ imageRepo );
+//        Log.e(TAG, "BitmapUtil: "+ imageRepo );
 
     }
 
     public static void saveAndClose(Context mContext, String uid, boolean updated, FacialProcessing objFace, int arrayPossition, Bitmap mBitmap, String str_origin_class) {
 
         if (saveToFile(mBitmap, uid)) {
-            Log.e(TAG, "saveAndClose: " + "Saved File Success!");
+            Log.e(TAG, "saveAndClose: " + "Saved File Success! uid= " + uid);
             if (saveToDb(uid, objFace)) Log.e(TAG, "saveAndClose: " + "Stored DB Success!");
         }
 
@@ -55,9 +58,6 @@ public class BitmapUtil {
     }
 
     private static boolean saveToFile(Bitmap mBitmap, String uid) {
-
-        String[] photoDirs = new String[]{DrishtiApplication.getAppDir(),
-                DrishtiApplication.getAppDir() + File.separator + ".thumbs"};
 
         try {
             // Raw image
@@ -77,10 +77,11 @@ public class BitmapUtil {
                 File thumbId = new File(String.format("%s%s%s.jpg", photoDirs[1], File.separator, "th_"+uid));
                 FileOutputStream thumbsFos = new FileOutputStream(thumbId);
                 final int THUMBSIZE = FaceConstants.THUMBSIZE;
-                Bitmap ThumbImage = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(thumbId.getAbsolutePath()), THUMBSIZE, THUMBSIZE);
-//                ThumbImage.compress(Bitmap.CompressFormat.PNG, 100, thumbsFos);
-                thumbsFos.close();
-                Log.e(TAG, "Wrote Thumbs image to " + thumbId.getAbsolutePath());
+                Bitmap ThumbImage = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(jpegId.getAbsolutePath()), THUMBSIZE, THUMBSIZE);
+                if(ThumbImage.compress(Bitmap.CompressFormat.PNG, 100, thumbsFos)){
+                    thumbsFos.close();
+                    Log.e(TAG, "Wrote Thumbs image to " + thumbId.getAbsolutePath());
+                } else Log.e(TAG, "saveToFile: Thumbs "+ "Failed" );
             } else {
                 Log.e(TAG, "saveToFile: "+"Folder Thumbs failed Created!" );
             }
@@ -99,17 +100,17 @@ public class BitmapUtil {
     }
 
     private static boolean saveToDb(String uid, FacialProcessing faceVector) {
-        imageRepo = ImageRepository.getInstance();
+        final ImageRepository imageRepo = FacialRecognitionLibrary.getInstance().facialRepository();
+        if (imageRepo != null) {
 
-        ProfileImage profileImage = new ProfileImage();
-        Log.e(TAG, "saveToDb: uid "+uid );
-        Log.e(TAG, "saveToDb: imagerepo "+ imageRepo );
+            ProfileImage profileImage = new ProfileImage();
 
-        profileImage.setBaseEntityId(uid);
-        profileImage.setSyncStatus(String.valueOf(ImageRepository.TYPE_Unsynced));
+            profileImage.setBaseEntityId(uid);
+            profileImage.setSyncStatus(String.valueOf(ImageRepository.TYPE_Unsynced));
 
-//        imageRepo.add(profileImage, uid);
-
+            imageRepo.add(profileImage, uid);
+            return true;
+        }
         return false;
     }
 

@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by sid on 2/21/17.
+ * Created by wildan on 2/21/17.
  */
 public class FaceVectorRepository extends DrishtiRepository {
     private static final String TAG = FaceVectorRepository.class.getCanonicalName();

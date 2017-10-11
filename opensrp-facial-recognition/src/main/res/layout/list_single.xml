@@ -7,7 +7,8 @@
 
     <TableRow
         android:id="@+id/table_container"
-        tools:ignore="UselessParent">
+        tools:ignore="UselessParent"
+        android:layout_marginTop="5dp">
 
         <ImageView
             android:id="@+id/profile_pic"

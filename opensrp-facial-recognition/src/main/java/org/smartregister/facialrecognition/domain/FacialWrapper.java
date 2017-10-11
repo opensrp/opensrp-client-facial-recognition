@@ -3,7 +3,7 @@ package org.smartregister.facialrecognition.domain;
 import java.io.Serializable;
 
 /**
- * Created by sid on 10/9/17.
+ * Created by wildan on 10/9/17.
  */
 
 public class FacialWrapper implements Serializable {

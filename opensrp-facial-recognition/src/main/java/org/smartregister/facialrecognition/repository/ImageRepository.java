@@ -1,5 +1,6 @@
 package org.smartregister.facialrecognition.repository;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
@@ -60,6 +61,11 @@ public class ImageRepository extends BaseRepository {
         return instance;
     }
 
+    public void add(ProfileImage profileImage, String entityId) {
+        profileImage.setBaseEntityId(entityId);
+        add(profileImage);
+    }
+
     public void add(ProfileImage profileImage) {
         try {
             if (profileImage == null) return;
@@ -68,13 +74,52 @@ public class ImageRepository extends BaseRepository {
 
             if (profileImage.getUpdatedAt() == null) profileImage.setUpdatedAt(Calendar.getInstance().getTimeInMillis());
 
+            SQLiteDatabase database = getRepository().getWritableDatabase();
+
+            if (profileImage.getBaseEntityId() != null) {
+                profileImage.setId(database.insert(PHOTO_TABLE_NAME, null, createValuesFor(profileImage)));
+            } else {
+                profileImage.setSyncStatus(TYPE_Unsynced);
+                update(database, profileImage);
+            }
+
         } catch (Exception e){
             Log.e(TAG, "add: "+ Log.getStackTraceString(e) );
         }
 
     }
 
-    public void add(ProfileImage profileImage, String entityId) {}
+    private void update(SQLiteDatabase database, ProfileImage profileImage) {
+        if (profileImage == null || profileImage.getId() != null){
+            return;
+        }
+
+        try {
+            SQLiteDatabase db;
+            db = (database == null)? getRepository().getWritableDatabase(): database;
+
+            String idSelection = BASE_ENTITY_ID_COLUMN + " = ?";
+            int qr = db.update(PHOTO_TABLE_NAME, createValuesFor(profileImage), idSelection, new String[]{profileImage.getBaseEntityId()});
+            Log.e(TAG, "update: "+ qr );
+        } catch (Exception e){
+            Log.e(TAG, "update: "+ Log.getStackTraceString(e) );
+        }
+    }
+
+    private ContentValues createValuesFor(ProfileImage profileImage) {
+        ContentValues values = new ContentValues();
+
+        long created_at = 0;
+        if (profileImage.getCreatedAt() != null) created_at = Calendar.getInstance().getTimeInMillis();
+
+        values.put(ID_COLUMN, profileImage.getId());
+        values.put(BASE_ENTITY_ID_COLUMN, profileImage.getBaseEntityId());
+        values.put(FACE_VECTOR_COLUMN, profileImage.getFaceVector());
+        values.put(SYNC_STATUS_COLUMN, profileImage.getSyncStatus());
+        values.put(CREATED_AT_COLUMN, created_at);
+        values.put(UPDATED_AT_COLUMN,Calendar.getInstance().getTimeInMillis());
+        return values;
+    }
 
     public void updateByEntityId(String entityId, String faceVector) {}
 
@@ -126,9 +171,14 @@ public class ImageRepository extends BaseRepository {
         Cursor c = null;
         long abc = 0;
         try {
-            String sql = "SELECT max("+ID_COLUMN+") FROM "+PHOTO_TABLE_NAME+" GROUP BY "+ID_COLUMN+";";
+            String sql = "SELECT max("+ID_COLUMN+") FROM "+PHOTO_TABLE_NAME;
             c = getRepository().getReadableDatabase().rawQuery(sql, null);
-            abc = ((c != null && c.getCount() > 0))? c.getLong(c.getColumnIndex(ID_COLUMN)) : 0L ;
+            if (c !=null){
+                c.moveToFirst();
+                abc = c.getInt(0);
+            }
+
+//            abc = ((c != null && c.getCount() > 0))? c.getLong(c.getColumnIndex(ID_COLUMN)) : 0L ;
 
         } catch (Exception e){
             Log.e(TAG, "findLatestRecordId: "+ e.getMessage() );

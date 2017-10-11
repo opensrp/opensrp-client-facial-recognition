@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import org.joda.time.DateTime;
 import org.smartregister.facialrecognition.domain.FacialWrapper;
 import org.smartregister.facialrecognition.listener.FacialActionListener;
 import org.smartregister.util.DateUtil;
@@ -28,6 +27,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.List;
+
+/**
+ * Created by wildan on 9/14/17.
+ */
 
 public class MainActivity extends AppCompatActivity implements FacialActionListener {
 
@@ -59,11 +62,15 @@ public class MainActivity extends AppCompatActivity implements FacialActionListe
         final ImageRepository imgRepo = FacialRecognitionLibrary.getInstance().facialRepository();
         latestId = imgRepo.findLatestRecordId();
 
+        Log.e(TAG, "onCreate: "+ latestId );
+
         fab_camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                getOpenCameraActivity();
-                SampleUtil.showCameraDialog(MainActivity.this, view, DIALOG_TAG);
+                // Use SNAPDRAGON SDK
+                getOpenCameraActivity();
+
+//                SampleUtil.showCameraDialog(MainActivity.this, view, DIALOG_TAG);
 
             }
         });
@@ -76,6 +83,16 @@ public class MainActivity extends AppCompatActivity implements FacialActionListe
         refreshEditFacialLayout();
     }
 
+    View.OnClickListener onclicklistener = new View.OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+//                SampleUtil.showEditWeightDialog(MainActivity.this, finalI, DIALOG_TAG);
+            // Use SNAPDRAGON SDK
+            getOpenCameraActivity();
+        }
+    };
+
     private void refreshEditFacialLayout() {
         View facialWidget = findViewById(R.id.cv_listfacial);
 
@@ -87,23 +104,27 @@ public class MainActivity extends AppCompatActivity implements FacialActionListe
         ArrayList<Boolean> editEnabled = new ArrayList<>();
 
         List<ProfileImage> imageList = ir.findLast5(SampleUtil.ENTITY_ID);
+
+
         for (int i = 0; i < imageList.size(); i++) {
             ProfileImage facial = imageList.get(i);
 
             facialMap.put(facial.getId(), Pair.create("", facial.getFaceVector() ));
+            // Default edit mode = true
+            editEnabled.add(true);
+            listeners.add(onclicklistener);
 
         }
         Log.e(TAG, "refreshEditFacialLayout: map Size "+ facialMap.size() );
 
+
         if (facialMap.size() < 5 && facialMap.size() > 0){
             facialMap.put(0L, Pair.create(DateUtil.getDuration(0), SampleUtil.FACEVECTOR));
+            editEnabled.add(false);
+            listeners.add(null);
 
             SampleUtil.createFacialWidget(MainActivity.this, facialWidget, facialMap, listeners, editEnabled);
         }
-
-//        if (facialMap.size() > 0){
-//            SampleUtil.createFacialWidget(MainActivity.this, facialWidget, facialMap, listeners);
-//        }
 
     }
 
@@ -161,11 +182,16 @@ public class MainActivity extends AppCompatActivity implements FacialActionListe
     public void getOpenCameraActivity() {
         Intent intent = new Intent(MainActivity.this, OpenCameraActivity.class);
         intent.putExtra("org.smartregister.facialrecognition.OpenCameraActivity.updated", false);
-        intent.putExtra("org.smartregister.facialrecognition.PhotoConfirmationActivity.id", Long.toString(latestId+1));
+        intent.putExtra("org.smartregister.facialrecognition.PhotoConfirmationActivity.id", Long.toString(latestId+1L));
         intent.putExtra("org.smartregister.facialrecognition.PhotoConfirmationActivity.identify", false);
         intent.putExtra("org.smartregister.facialrecognition.PhotoConfirmationActivity.origin", TAG);
 
         startActivityForResult(intent, 0);
 
+    }
+
+    @Override
+    public boolean onSearchRequested() {
+        return super.onSearchRequested();
     }
 }

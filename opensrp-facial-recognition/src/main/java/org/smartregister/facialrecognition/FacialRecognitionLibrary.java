@@ -8,7 +8,7 @@ import org.smartregister.facialrecognition.repository.ImageRepository;
 import org.smartregister.repository.Repository;
 
 /**
- * Created by sid on 10/2/17.
+ * Created by wildan on 10/2/17.
  */
 
 public class FacialRecognitionLibrary {

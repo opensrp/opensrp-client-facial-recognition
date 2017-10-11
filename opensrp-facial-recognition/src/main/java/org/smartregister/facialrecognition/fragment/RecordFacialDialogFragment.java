@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import org.smartregister.facialrecognition.domain.FacialWrapper;
 
 /**
- * Created by sid on 10/10/17.
+ * Created by wildan on 10/10/17.
  */
 
 public class RecordFacialDialogFragment extends DialogFragment {

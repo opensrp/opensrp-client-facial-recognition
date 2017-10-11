@@ -30,8 +30,8 @@ public class ProfileImage {
         this.baseEntityId = baseEntityId;
         this.faceVector = faceVector;
         this.syncStatus = syncStatus;
-        this.createdAt = new Long(createdAt);
-        this.updatedAt = new Long(updatedAt);
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     public void setId(Long _id) {

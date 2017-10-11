@@ -11,7 +11,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
- * Created by sid on 2/22/17.
+ * Created by wildan on 2/22/17.
  */
 public class HttpHandler {
 

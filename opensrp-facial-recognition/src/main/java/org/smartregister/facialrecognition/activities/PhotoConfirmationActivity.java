@@ -163,9 +163,11 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
                 if (!identifyPerson) {
 
 //                    Tools.saveAndClose(getApplicationContext(), entityId, updated, objFace, arrayPossition, storedBitmap, str_origin_class);
+
+                    Log.e(TAG, "onClick: "+ entityId);
                     BitmapUtil.saveAndClose(getApplicationContext(), entityId, updated, objFace, arrayPossition, storedBitmap, str_origin_class);
 
-                    Log.e(TAG, "onClick: listener "+ listener );
+//                    Log.e(TAG, "onClick: listener "+ listener );
 
 //                    tag.setFaceVector("123");
 //                    listener.onFacialTaken(tag);
