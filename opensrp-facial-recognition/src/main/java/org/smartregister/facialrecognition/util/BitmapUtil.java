@@ -43,7 +43,7 @@ public class BitmapUtil {
 
         if (saveToFile(mBitmap, uid)) {
             Log.e(TAG, "saveAndClose: " + "Saved File Success! uid= " + uid);
-            if (saveToDb(uid, objFace)) Log.e(TAG, "saveAndClose: " + "Stored DB Success!");
+            if (saveToDb(updated, uid, objFace)) Log.e(TAG, "saveAndClose: " + "Stored DB Success!");
         }
 
     }
@@ -90,16 +90,35 @@ public class BitmapUtil {
 
     }
 
-    private static boolean saveToDb(String uid, FacialProcessing faceVector) {
+    private static boolean saveToDb(boolean updatedMode, String uid, FacialProcessing objFace) {
         final ImageRepository imageRepo = FacialRecognitionLibrary.getInstance().facialRepository();
+
+        byte[] faceVector;
+
+
         if (imageRepo != null) {
 
-            ProfileImage profileImage = new ProfileImage();
+            if (!updatedMode){
 
-            profileImage.setBaseEntityId(uid);
-            profileImage.setSyncStatus(String.valueOf(ImageRepository.TYPE_Unsynced));
+                int result = objFace.addPerson(0);
+                faceVector = objFace.serializeRecogntionAlbum();
+                String albumBufferArr = Arrays.toString(faceVector);
+                String[] faceVectorContent = albumBufferArr.substring(1, albumBufferArr.length() - 1).split(", ");
+                // Get Face Vector Content Only by removing Header
+                faceVectorContent = Arrays.copyOfRange(faceVectorContent, faceVector.length - 300, faceVector.length);
 
-            imageRepo.add(profileImage, uid);
+                ProfileImage profileImage = new ProfileImage();
+
+                profileImage.setBaseEntityId(uid);
+                profileImage.setFaceVector(Arrays.toString(faceVectorContent));
+                profileImage.setSyncStatus(String.valueOf(ImageRepository.TYPE_Unsynced));
+
+                imageRepo.add(profileImage, uid);
+
+            } else {
+                // TODO: Update existing record
+            }
+
             return true;
         }
         return false;

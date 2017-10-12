@@ -118,12 +118,13 @@ public class MainActivity extends AppCompatActivity implements FacialActionListe
         }
         Log.e(TAG, "refreshEditFacialLayout: map Size "+ facialMap.size() );
 
-        if (facialMap.size() < 5 && facialMap.size() > 0){
+        if (facialMap.size() < 5 && facialMap.size() >= 0){
             facialMap.put(0L, Pair.create(DateUtil.getDuration(0), SampleUtil.FACEVECTOR));
             editEnabled.add(false);
             listeners.add(null);
-
         }
+        Log.e(TAG, "refreshEditFacialLayout: map Size "+ facialMap.size() );
+
         SampleUtil.createFacialWidget(MainActivity.this, facialWidget, facialMap, listeners, editEnabled);
 
     }

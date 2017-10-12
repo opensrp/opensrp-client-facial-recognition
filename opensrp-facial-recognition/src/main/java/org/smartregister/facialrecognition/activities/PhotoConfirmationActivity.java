@@ -252,12 +252,11 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
         confirmationView.setImageBitmap(scaled);
 //        confirmationView.setImageBitmap(mutableBitmap);
 
-//        useSnapdragonSDK();
+        useSnapdragonSDK();
 
     }
 
     private void useSnapdragonSDK() {
-        // FR
         objFace = OpenCameraActivity.faceProc;
 //        setBitmapFR = objFace.setBitmap(storedBitmap);
         setBitmapFR = objFace.setBitmap(mutableBitmap);
@@ -298,7 +297,7 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
                         showDetailUser(selectedPersonName);
                     } else {
                         // Not Identifiying, do new record.
-//                        Draw Info on Image
+                        // Draw Info on Image
                         Log.e(TAG, "image_proc: rect "+ rect.toString() ); // Rect(125, 409 - 847, 951)
                         BitmapUtil.drawRectFace(rects[i], mutableBitmap, pixelDensity);
 
@@ -324,12 +323,10 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
                     }
                 }
             } else {
-                Log.e(TAG, "image_proc: "+ "face Data null" );
-                Log.e(TAG, "onCreate: faceDatas "+"Null" );
                 Toast.makeText(PhotoConfirmationActivity.this, "No Face Detected", Toast.LENGTH_SHORT).show();
                 Intent resultIntent = new Intent();
                 setResult(RESULT_CANCELED, resultIntent);
-//                PhotoConfirmationActivity.this.finish();
+                PhotoConfirmationActivity.this.finish();
             }
         } else {
             Log.e(TAG, "onCreate: SetBitmap objFace"+"Failed" );
