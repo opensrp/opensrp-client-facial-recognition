@@ -3,7 +3,9 @@ package org.smartregister.facialrecognition;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.util.Log;
+import android.view.Window;
 
 import com.qualcomm.snapdragon.sdk.face.FacialProcessing;
 
@@ -11,12 +13,15 @@ import org.smartregister.Context;
 
 import org.smartregister.facialrecognition.domain.ProfileImage;
 import org.smartregister.facialrecognition.repository.ImageRepository;
+import org.smartregister.facialrecognition.util.FSDK;
 import org.smartregister.facialrecognition.utils.FaceConstants;
 import org.smartregister.facialrecognition.utils.Tools;
 import org.smartregister.repository.Repository;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by wildan on 10/2/17.
@@ -30,6 +35,8 @@ public class FacialRecognitionLibrary {
     public static FacialProcessing faceProc = null;
     private static boolean activityStartedOnce = false;
     private static int confidence_value = 58;
+
+    private static String ACTIVATION_KEY = "";
 
     private final Repository repository;
     private final Context context;
@@ -45,6 +52,29 @@ public class FacialRecognitionLibrary {
         if (instance == null) instance = new FacialRecognitionLibrary(context, repository);
 
         // IF SNAPDRAGON
+        int sdk_lib = 1;
+
+        if (sdk_lib == 1){
+            snapdragonSDK();
+        } else if (sdk_lib == 2){
+            luxandSDK();
+        }
+
+    }
+
+    private static void luxandSDK() {
+
+        int res = FSDK.ActivateLibrary(ACTIVATION_KEY);
+
+        if (res != FSDK.FSDKE_OK) {
+            Log.e(TAG, "onCreate: FAILED" );
+        } else {
+            Log.e(TAG, "onCreate: SUCCESS" );
+            FSDK.Initialize();
+        }
+    }
+
+    private static void snapdragonSDK() {
         if (isDevCompat == null) isDevCompat = FacialProcessing.isFeatureSupported(FacialProcessing.FEATURE_LIST.FEATURE_FACIAL_RECOGNITION);
 
         if (!activityStartedOnce) {
@@ -79,7 +109,6 @@ public class FacialRecognitionLibrary {
 //                                }).show();
             }
         }
-        
 
     }
 
