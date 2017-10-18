@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -13,20 +16,28 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import org.smartregister.view.viewpager.OpenSRPViewPager;
+
+import org.smartregister.facialrecognition.FacialRecognitionLibrary;
 import org.smartregister.facialrecognition.domain.FacialWrapper;
 import org.smartregister.facialrecognition.listener.FacialActionListener;
-import org.smartregister.util.DateUtil;
-import org.smartregister.facialrecognition.FacialRecognitionLibrary;
 import org.smartregister.facialrecognition.activities.OpenCameraActivity;
 import org.smartregister.facialrecognition.domain.ProfileImage;
 import org.smartregister.facialrecognition.repository.ImageRepository;
-import org.smartregister.facialrecognition.sample.util.SampleUtil;
 import org.smartregister.facialrecognition.utils.Tools;
 
+import org.smartregister.util.DateUtil;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.List;
+
+import butterknife.Bind;
+
+import org.smartregister.facialrecognition.sample.adapter.FacialRegisterActivityPageAdapter;
+import org.smartregister.facialrecognition.sample.fragment.AdvancedSearchFragment;
+import org.smartregister.facialrecognition.sample.fragment.FacialFragment;
+import org.smartregister.facialrecognition.sample.util.SampleUtil;
 
 /**
  * Created by wildan on 9/14/17.
@@ -37,6 +48,9 @@ public class MainActivity extends AppCompatActivity implements FacialActionListe
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String DIALOG_TAG = "DIALOG_TAG_BLA";
     Long latestId;
+    private Fragment mBaseFragment;
+    private FacialRegisterActivityPageAdapter mPagerAdapter;
+    private int currentPage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +74,18 @@ public class MainActivity extends AppCompatActivity implements FacialActionListe
             fab_camera.setVisibility(View.INVISIBLE);
         }
 
+        mBaseFragment = new FacialFragment();
+        Fragment[] otherFragments = {new AdvancedSearchFragment()};
+
+        mPagerAdapter = new FacialRegisterActivityPageAdapter(getSupportFragmentManager(), mBaseFragment, otherFragments);
+//        mPager.setOffscreenPageLimit(otherFragments.length);
+//        mPager.setAdapter(mPagerAdapter);
+//        mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+//            @Override
+//            public void onPageSelected(int position) {
+//                currentPage = position;
+//            }
+//        });
 
 
         fab_camera.setOnClickListener(new View.OnClickListener() {

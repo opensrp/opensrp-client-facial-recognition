@@ -13,16 +13,13 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.AttributeSet;
-import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.balysv.materialmenu.MaterialMenuDrawable;
 import com.qualcomm.snapdragon.sdk.face.FaceData;
 import com.qualcomm.snapdragon.sdk.face.FacialProcessing;
 
@@ -33,8 +30,6 @@ import org.smartregister.facialrecognition.util.BitmapUtil;
 import org.smartregister.facialrecognition.utils.FaceConstants;
 import org.smartregister.facialrecognition.utils.Tools;
 
-import java.io.ByteArrayOutputStream;
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -56,7 +51,6 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
     private FacialProcessing objFace;
     private FaceData[] faceDatas;
     private int arrayPossition;
-    Tools tools;
     HashMap<String, String> clientList;
     private String selectedPersonName = "";
     private Parcelable[] kiclient;
@@ -65,13 +59,9 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
 
     byte[] data;
     int angle;
-    boolean switchCamera;
     private byte[] faceVector;
     private boolean updated = false;
 
-//    private DrawerLayout drawerLayout;
-    private boolean isDrawerOpened;
-    private MaterialMenuDrawable materialMenu;
     private Context context;
     private boolean cameraFront = false;
     private boolean setBitmapFR;
@@ -154,6 +144,7 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
     }
 
     private void initListeners() {
+        final BitmapUtil mBitmapUtil = new BitmapUtil();
         // If approved then save the image and close.
         confirmButton.setOnClickListener(new View.OnClickListener() {
 
@@ -162,12 +153,7 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
 
                 if (!identifyPerson) {
 
-//                    Tools.saveAndClose(getApplicationContext(), entityId, updated, objFace, arrayPossition, storedBitmap, str_origin_class);
-
-                    Log.e(TAG, "onClick: "+ entityId);
-                    BitmapUtil.saveAndClose(getApplicationContext(), entityId, updated, objFace, arrayPossition, storedBitmap, str_origin_class);
-
-//                    Log.e(TAG, "onClick: listener "+ listener );
+                    mBitmapUtil.saveAndClose(getApplicationContext(), entityId, updated, objFace, arrayPossition, storedBitmap, str_origin_class);
 
 //                    tag.setFaceVector("123");
 //                    listener.onFacialTaken(tag);
@@ -245,12 +231,11 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
             mat.postRotate(angle == 90 ? 90 : (angle == 180 ? 180 : 0));
             storedBitmap = Bitmap.createBitmap(storedBitmap, 0, 0, storedBitmap.getWidth(), storedBitmap.getHeight(), mat, true);
         }
+        workingBitmap = Bitmap.createScaledBitmap(storedBitmap, screenWidth, screenHeight, false);
+        mutableBitmap = workingBitmap.copy(Bitmap.Config.ARGB_8888, true);
 
-        mutableBitmap = storedBitmap.copy(Bitmap.Config.ARGB_8888, true);
         Bitmap scaled = Bitmap.createScaledBitmap(mutableBitmap, screenWidth/2, screenHeight/2, false);
-//        Bitmap scaled = Bitmap.createScaledBitmap(storedBitmap, screenWidth, screenHeight, true);
         confirmationView.setImageBitmap(scaled);
-//        confirmationView.setImageBitmap(mutableBitmap);
 
         useSnapdragonSDK();
 
@@ -258,9 +243,11 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
 
     private void useSnapdragonSDK() {
         objFace = OpenCameraActivity.faceProc;
-//        setBitmapFR = objFace.setBitmap(storedBitmap);
-        setBitmapFR = objFace.setBitmap(mutableBitmap);
         faceDatas = objFace.getFaceData();
+
+        setBitmapFR = objFace.setBitmap(storedBitmap);
+
+        objFace.normalizeCoordinates(screenWidth, screenHeight);
 
         if (setBitmapFR){
             Log.e(TAG, "image_proc: "+"success" );
@@ -281,7 +268,6 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
                         // Default name is the person is unknown
                         selectedPersonName = "Unknown";
                         while (iter.hasNext()) {
-                            Log.e(TAG, "image_proc: "+ "Matching" );
                             HashMap.Entry<String, String> entry = iter.next();
                             if (entry.getValue().equals(selectedPersonId)) {
                                 selectedPersonName = entry.getKey();
@@ -289,16 +275,12 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
                         }
 
                         Toast.makeText(getApplicationContext(), selectedPersonName, Toast.LENGTH_SHORT).show();
-
-//                        Draw Info on Image
+                        // Draw
                         BitmapUtil.drawInfo(rect, mutableBitmap, pixelDensity, selectedPersonName);
-                        Log.e(TAG, "image_proc: "+i );
 
                         showDetailUser(selectedPersonName);
                     } else {
-                        // Not Identifiying, do new record.
-                        // Draw Info on Image
-                        Log.e(TAG, "image_proc: rect "+ rect.toString() ); // Rect(125, 409 - 847, 951)
+                        // Not Identifying, do new record.
                         BitmapUtil.drawRectFace(rects[i], mutableBitmap, pixelDensity);
 
                         // Check Detected existing face

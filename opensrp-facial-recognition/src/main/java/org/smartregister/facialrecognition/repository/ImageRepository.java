@@ -124,7 +124,10 @@ public class ImageRepository extends BaseRepository {
     public void updateByEntityId(String entityId, String faceVector) {}
 
     public List<ProfileImage> getAllVectorImages() {
-        return allVectorImages;
+        Cursor cursor = getRepository().getReadableDatabase().query(
+                PHOTO_TABLE_NAME, PHOTO_TABLE_COLUMNS, null, null, null, null, UPDATED_AT_COLUMN + COLLATE_NOCASE + " DESC", null);
+
+        return readAllFacials(cursor);
     }
 
     public List<String> findAllUnDownloaded() {

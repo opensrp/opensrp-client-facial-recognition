@@ -36,6 +36,7 @@ import com.qualcomm.snapdragon.sdk.face.FacialProcessing;
 import com.qualcomm.snapdragon.sdk.face.FacialProcessing.PREVIEW_ROTATION_ANGLE;
 
 import org.smartregister.facialrecognition.R;
+import org.smartregister.facialrecognition.FacialRecognitionLibrary;
 import org.smartregister.facialrecognition.utils.FaceConstants;
 import org.smartregister.facialrecognition.utils.Tools;
 
@@ -106,8 +107,8 @@ public class OpenCameraActivity extends Activity implements PreviewCallback {
         initCamera();
 
         // Load Vector Data
-        Tools.loadAlbum(getApplicationContext());
-        hash = OpenCameraActivity.retrieveHash(getApplicationContext());
+//        Tools.loadAlbum(getApplicationContext());
+//        hash = OpenCameraActivity.retrieveHash(getApplicationContext());
 
     }
 
@@ -166,7 +167,8 @@ public class OpenCameraActivity extends Activity implements PreviewCallback {
 
 //            loadAlbum();
             if (faceProc == null) {
-                faceProc = FacialProcessing.getInstance();
+//                faceProc = FacialProcessing.getInstance();
+                faceProc = FacialRecognitionLibrary.faceProc;
             }
 //            byte[] dataFace = faceProc.serializeRecogntionAlbum();
 
@@ -398,6 +400,58 @@ public class OpenCameraActivity extends Activity implements PreviewCallback {
         }
     }
 
+    private void initCamera() {
+
+        // Check to see if the FacialProc feature is supported in the device or no.
+        isDevCompat = FacialRecognitionLibrary.getDevCompat();
+
+        if (isDevCompat && faceProc != null) {
+            Log.e(TAG, "Feature is supported");
+            // Calling the FacialActivity Processing Constructor.
+//            faceProc = FacialRecognitionLibrary.faceProc;
+//            faceProc.setRecognitionConfidence(Tools.CONFIDENCE_VALUE);
+
+        } else if (!isDevCompat && !activityStartedOnce) {
+            Log.e(TAG, "Feature is NOT supported");
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(OpenCameraActivity.this);
+
+            // set title
+            alertDialogBuilder.setTitle(FaceConstants.UNSUPPORTED_TITLE);
+
+            // set dialog message
+            alertDialogBuilder
+                    .setMessage(FaceConstants.UNSUPPORTED_MSG)
+                    .setCancelable(false)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+
+                        }
+                    });
+
+            // create alert dialog
+            AlertDialog alertDialog = alertDialogBuilder.create();
+
+            // show it
+            alertDialog.show();
+            activityStartedOnce = true;
+        }
+
+        if (!switchCamera) {
+            // Open the Front camera
+            cameraObj = Camera.open(FRONT_CAMERA_INDEX);
+        } else {
+            // Open the back camera
+            cameraObj = Camera.open(BACK_CAMERA_INDEX);
+        }
+
+        // Create a new surface on which Camera will be displayed.
+        mPreview = new CameraPreview(OpenCameraActivity.this, cameraObj);
+        preview = (FrameLayout) findViewById(R.id.cameraPreview);
+        preview.addView(mPreview);
+        cameraObj.setPreviewCallback(OpenCameraActivity.this);
+
+    }
+
     private void initGuiAndAnimation() {
         setContentView(R.layout.activity_fr_main);
 
@@ -534,57 +588,6 @@ public class OpenCameraActivity extends Activity implements PreviewCallback {
         cameraObj = null;
     }
 
-    private void initCamera() {
-
-        // Check to see if the FacialProc feature is supported in the device or no.
-        isDevCompat = FacialProcessing.isFeatureSupported(FacialProcessing.FEATURE_LIST.FEATURE_FACIAL_PROCESSING);
-
-        if (isDevCompat && faceProc == null) {
-            Log.e(TAG, "Feature is supported");
-            // Calling the FacialActivity Processing Constructor.
-            faceProc = FacialProcessing.getInstance();
-            faceProc.setRecognitionConfidence(Tools.CONFIDENCE_VALUE);
-
-        } else if (!isDevCompat && !activityStartedOnce) {
-            Log.e(TAG, "Feature is NOT supported");
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(OpenCameraActivity.this);
-
-            // set title
-            alertDialogBuilder.setTitle(FaceConstants.UNSUPPORTED_TITLE);
-
-            // set dialog message
-            alertDialogBuilder
-                    .setMessage(FaceConstants.UNSUPPORTED_MSG)
-                    .setCancelable(false)
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-
-                        }
-                    });
-
-            // create alert dialog
-            AlertDialog alertDialog = alertDialogBuilder.create();
-
-            // show it
-            alertDialog.show();
-            activityStartedOnce = true;
-        }
-
-        if (!switchCamera) {
-            // Open the Front camera
-            cameraObj = Camera.open(FRONT_CAMERA_INDEX);
-        } else {
-            // Open the back camera
-            cameraObj = Camera.open(BACK_CAMERA_INDEX);
-        }
-
-        // Create a new surface on which Camera will be displayed.
-        mPreview = new CameraPreview(OpenCameraActivity.this, cameraObj);
-        preview = (FrameLayout) findViewById(R.id.cameraPreview);
-        preview.addView(mPreview);
-        cameraObj.setPreviewCallback(OpenCameraActivity.this);
-
-    }
 
     private void initializeCheckBoxes() {
         smile = (CheckBox) findViewById(R.id.smileCheckBox);

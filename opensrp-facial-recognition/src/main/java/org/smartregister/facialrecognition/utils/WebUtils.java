@@ -14,19 +14,17 @@ import okhttp3.Route;
  */
 
 
-public class WebUtils {
+class WebUtils {
 
-    public static Response fetch(String url, String username, String password) throws Exception {
+    static Response fetch(String url, String username, String password) throws Exception {
 
         OkHttpClient httpClient = createAuthenticatedClient(username, password);
-        // execute request
 
         return doRequest(httpClient, url);
 
     }
 
-    private static OkHttpClient createAuthenticatedClient(final String username,
-                                                          final String password) {
+    private static OkHttpClient createAuthenticatedClient(final String username, final String password) {
         // build client with authentication information.
         OkHttpClient httpClient = new OkHttpClient.Builder().authenticator(new Authenticator() {
             public Request authenticate(Route route, Response response) throws IOException {

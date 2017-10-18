@@ -39,11 +39,14 @@ public class BitmapUtil {
     public void BitmapUtil(){
     }
 
-    public static void saveAndClose(Context mContext, String uid, boolean updated, FacialProcessing objFace, int arrayPossition, Bitmap mBitmap, String str_origin_class) {
+    public void saveAndClose(Context mContext, String uid, boolean updated, FacialProcessing objFace, int arrayPossition, Bitmap mBitmap, String str_origin_class) {
 
         if (saveToFile(mBitmap, uid)) {
             Log.e(TAG, "saveAndClose: " + "Saved File Success! uid= " + uid);
             if (saveToDb(updated, uid, objFace)) Log.e(TAG, "saveAndClose: " + "Stored DB Success!");
+
+        } else {
+            Log.e(TAG, "saveAndClose: "+"Failed saved file!" );
         }
 
     }
@@ -90,7 +93,7 @@ public class BitmapUtil {
 
     }
 
-    private static boolean saveToDb(boolean updatedMode, String uid, FacialProcessing objFace) {
+    private boolean saveToDb(boolean updatedMode, String uid, FacialProcessing objFace) {
         final ImageRepository imageRepo = FacialRecognitionLibrary.getInstance().facialRepository();
 
         byte[] faceVector;

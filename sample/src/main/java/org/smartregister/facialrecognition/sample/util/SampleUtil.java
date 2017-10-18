@@ -40,7 +40,6 @@ public class SampleUtil {
         int i = 0;
         for (Map.Entry<Long, Pair<String, String>> entry : last_five_facial_map.entrySet()){
 
-            Log.e(TAG, "createFacialWidget: "+ i );
             Pair<String, String> pair = entry.getValue();
             View view = createTableRowForFacial(context, sampleLayout, entry.getKey(), pair.first, pair.second, editenabled.get(i), listeners.get(i));
             sampleLayout.addView(view);
@@ -61,7 +60,6 @@ public class SampleUtil {
         } else {
 //            edit.setVisibility(View.INVISIBLE);
         }
-        Log.e(TAG, "createTableRowForFacial: "+ uid );
         // Set Text
         try {
             String photoPath = String.format("%s%s%s.jpg", BitmapUtil.photoDirs[1], File.separator, "th_"+uid);
@@ -71,7 +69,8 @@ public class SampleUtil {
             if (photo != null) profile_pic.setImageBitmap(photo);
 
         } catch (FileNotFoundException e){
-            Log.e(TAG, "createTableRowForFacial: "+ Log.getStackTraceString(e) );
+            e.printStackTrace();
+//            Log.e(TAG, "createTableRowForFacial: "+ Log.getStackTraceString(e) );
         } catch (IOException e){
             e.printStackTrace();
         }

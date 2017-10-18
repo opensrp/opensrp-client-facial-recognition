@@ -43,6 +43,8 @@ android {
         }
 
         debug {
+            resValue "string", 'opensrp_url', '"http://46.101.51.199:8080/opensrp"'
+            testCoverageEnabled true
             multiDexEnabled true
 
         }

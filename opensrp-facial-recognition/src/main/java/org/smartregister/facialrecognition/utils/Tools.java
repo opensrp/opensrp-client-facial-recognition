@@ -59,7 +59,6 @@ public class Tools {
 
     private static final String TAG = Tools.class.getSimpleName();
     public static final int CONFIDENCE_VALUE = 58;
-    public static android.content.Context androContext;
     private static String[] splitStringArray;
     private static Bitmap dummyImage = null;
     private static byte[] headerOfVector;
@@ -85,11 +84,11 @@ public class Tools {
     static String singleHeader = "[76, 1, 0, 0, 76, 65, -68, -20, 77, 116, 46, 83, 105, 110, 97, 105, 6, 0, 0, 0, -24, 3, 0, 0, 10, 0, 0, 0, 1, 0, 0, 0]";
 
     private byte[] allFileVector;
-    private static Context appContext;
+    static Context mContext;
 
-    public Tools(Context appContext) {
+    public Tools(Context mContext) {
         imageRepo = ImageRepository.getInstance();
-        Tools.appContext = appContext;
+//        Tools.mContext = mContext;
     }
 
     /**
@@ -346,9 +345,9 @@ public class Tools {
                 albumArray[i] = Byte.parseByte(splitStringArray[i]);
             }
 
-            boolean result = OpenCameraActivity.faceProc.deserializeRecognitionAlbum(albumArray);
+//            boolean result = OpenCameraActivity.faceProc.deserializeRecognitionAlbum(albumArray);
 
-            if (result) Log.e(TAG, "loadAlbum: "+"Succes" );
+//            if (result) Log.e(TAG, "loadAlbum: "+"Succes" );
 
         } else {
             Log.e(TAG, "loadAlbum: " + "is it your first record ? if no, there is problem happen.");
@@ -409,16 +408,16 @@ public class Tools {
             // Clear data
             // TODO: Null getApplication COntext
 //            HashMap<String, String> hashMap = OpenCameraActivity.retrieveHash(new ClientsListActivity().getApplicationContext());
-            HashMap<String, String> hashMap = OpenCameraActivity.retrieveHash(appContext.applicationContext().getApplicationContext());
+            HashMap<String, String> hashMap = OpenCameraActivity.retrieveHash(mContext.applicationContext().getApplicationContext());
             hashMap.clear();
 //            saveHash(hashMap, cl.getApplicationContext());
-            saveHash(hashMap, appContext.applicationContext().getApplicationContext());
+            saveHash(hashMap, mContext.applicationContext().getApplicationContext());
 //            saveAlbum();
 
 //            Toast.makeText(cl.getApplicationContext(), "Reset Succesfully done!", Toast.LENGTH_LONG).show();
-            Toast.makeText(appContext.applicationContext().getApplicationContext(), "Reset Succesfully done!", Toast.LENGTH_LONG).show();
+            Toast.makeText(mContext.applicationContext().getApplicationContext(), "Reset Succesfully done!", Toast.LENGTH_LONG).show();
         } else {
-            Toast.makeText(appContext.applicationContext().getApplicationContext(), "Reset Failed!", Toast.LENGTH_LONG).show();
+            Toast.makeText(mContext.applicationContext().getApplicationContext(), "Reset Failed!", Toast.LENGTH_LONG).show();
 
         }
         Log.e(TAG, "resetAlbum: " + "finish");
@@ -426,41 +425,30 @@ public class Tools {
 
     /**
      * Fetch data from API (json
+     * @param mContext
+     * @param facialRepository
      */
-    public static void setVectorfromAPI(final android.content.Context context) {
-        Log.e(TAG, "setVectorfromAPI: Start" );
-//        AllSharedPreferences allSharedPreferences;
+    public static void setVectorfromAPI(Context mContext, ImageRepository facialRepository) {
+        Log.i(TAG, "setVectorfromAPI: Start" );
+        // Get URL Information
+        String DRISTHI_BASE_URL = mContext.configuration().dristhiBaseURL();
+        String user = mContext.allSharedPreferences().fetchRegisteredANM();
+        String location = mContext.allSharedPreferences().getPreference("locationId");
 
-        String DRISTHI_BASE_URL = appContext.configuration().dristhiBaseURL();
-        String user = appContext.allSharedPreferences().fetchRegisteredANM();
-        String location = appContext.allSharedPreferences().getPreference("locationId");
-        final String pwd = appContext.allSettings().fetchANMPassword();
-        //TODO : cange to based locationId
-//        String api_url = DRISTHI_BASE_URL + "/multimedia-file?anm-id=" + user;
+        final String pwd = mContext.allSettings().fetchANMPassword();
         final String api_url = DRISTHI_BASE_URL + "/multimedia-file?locationid=" + location;
 
-//        AsyncHttpClient client = new AsyncHttpClient();
-
-//        client.setBasicAuth(user, pwd);
-
-//        client.get(api_url, new JsonHttpResponseHandler(){
-//        });
-
-//        getImages(client, api_url);
-
-//        getImages2(user, pwd, getClient(), api_url);
-
-
-        try {
-            WebUtils.fetch(api_url, user, pwd);
-        } catch (Exception e) {
-            e.printStackTrace();
+        if( (DRISTHI_BASE_URL != null && !DRISTHI_BASE_URL.isEmpty()) && (user != null && !user.isEmpty()) && (pwd != null && !pwd.isEmpty())){
+            try {
+                WebUtils.fetch(api_url, user, pwd);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            Log.e(TAG, "setVectorfromAPI: URL, Username or Password is Null or Empty. Please Check your Configuration" );
         }
 
-//            insertUpdateVector(response.body());
-
-
-        Log.e(TAG, "setVectorfromAPI: END" );
+        setAppContext(mContext);
 
     }
 
@@ -588,7 +576,8 @@ public class Tools {
             e.printStackTrace();
         }
 
-        setVectorsBuffered();
+        // TODO : check mContext , imageRepo not NULL
+        setVectorsBuffered(mContext, imageRepo);
         download_images();
         Log.e(TAG, "insertOrUpdate: END " );
 
@@ -623,7 +612,7 @@ public class Tools {
 
         byte[] faceVector;
 
-        setAppContext(context);
+        setAppContext(mContext);
 
         // New record
         if (!updated && objFace != null) {
@@ -690,43 +679,43 @@ public class Tools {
 //        }
 
         // TODO Crash saved after long time no use
-        if (appContext == null) {
+        if (mContext == null) {
             Log.e(TAG, "saveAndClose: Context NULL" );
 
-//            appContext = getAppContext();
-//            Intent resultIntent = new Intent(appContext.applicationContext(), origin_class);
+//            mContext = getAppContext();
+//            Intent resultIntent = new Intent(mContext.applicationContext(), origin_class);
 //            Intent resultIntent = new Intent(context, origin_class);
 //            resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//            appContext.applicationContext().startActivity(resultIntent);
+//            mContext.applicationContext().startActivity(resultIntent);
         } else {
-            Log.e(TAG, "saveAndClose: Context Opensrp "+ appContext.applicationContext() );
+            Log.e(TAG, "saveAndClose: Context Opensrp "+ mContext.applicationContext() );
             Log.e(TAG, "saveAndClose: Context Android "+ context );
-//            Intent resultIntent = new Intent(appContext.applicationContext(), origin_class);
+//            Intent resultIntent = new Intent(mContext.applicationContext(), origin_class);
 //            resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//            appContext.applicationContext().startActivity(resultIntent);
+//            mContext.applicationContext().startActivity(resultIntent);
         }
         Log.e(TAG, "saveAndClose: " + "end");
     }
 
-    private static void setAppContext(android.content.Context mcontext) {
-        androContext = mcontext;
-    }
 
+    public static void setVectorsBuffered(Context mContext, ImageRepository imageRepo) {
+        Log.i(TAG, "setVectorsBuffered: Stored vector as Album xml file.");
 
-    public static void setVectorsBuffered() {
-        Log.e(TAG, "setVectorsBuffered: START" );
+        if (imageRepo == null) {
+            imageRepo = ImageRepository.getInstance();
+        }
 
         List<ProfileImage> vectorList = imageRepo.getAllVectorImages();
 
         if (vectorList.size() != 0) {
 
-            hash = retrieveHash(appContext.applicationContext().getApplicationContext());
+            hash = retrieveHash(mContext.applicationContext().getApplicationContext());
 
             String[] albumBuffered = new String[0];
 
             int i = 0;
             for (ProfileImage profileImage : vectorList) {
-                String[] vectorFace = new String[]{};
+                String[] vectorFace;
                 if (profileImage.getFilevector() != null) {
 
                     vectorFace = profileImage.getFilevector().substring(1, profileImage.getFilevector().length() - 1).split(", ");
@@ -752,8 +741,8 @@ public class Tools {
             /**
              * Save vector body to Buffered
              */
-            saveAlbum(Arrays.toString(albumBuffered), appContext.applicationContext());
-            saveHash(hash, appContext.applicationContext());
+            saveAlbum(Arrays.toString(albumBuffered), mContext.applicationContext());
+            saveHash(hash, mContext.applicationContext());
 
         } else {
             Log.e(TAG, "setVectorsBuffered: "+ "Multimedia Table Not ready" );
@@ -765,7 +754,7 @@ public class Tools {
 //        String headerNew = imageRepo.findByUserCount(n);
 //        return headerNew.substring(1, headerNew.length() -1).split(", ");
 
-        Log.e(TAG, "getHeaderBaseUserCount: Number User"+ i );
+        Log.i(TAG, "getHeaderBaseUserCount: Number User"+ i );
 
 //        Init value
         int n = i-1;
@@ -855,7 +844,7 @@ public class Tools {
         try {
             List<String> images = imageRepo.findAllUnDownloaded();
             for (String uid : images){
-                ImageView iv = new ImageView(appContext.applicationContext());
+                ImageView iv = new ImageView(mContext.applicationContext());
                 // TODO setTag+"The key must be an application-specific resource id"
                 iv.setTag(R.id.entity_id, uid);
                 DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(uid, OpenSRPImageLoader.getStaticImageListener(iv, 0, 0));
@@ -869,11 +858,11 @@ public class Tools {
     }
 
     public static void setAppContext(Context context) {
-        Tools.appContext = context;
+        Tools.mContext = context;
     }
 
     public static Context getAppContext(){
-        return Tools.appContext;
+        return Tools.mContext;
     }
 
     public void setAlbumBuffer(String albumBuffer) {
@@ -893,4 +882,6 @@ public class Tools {
         return false;
         }
     }
+
+
 }

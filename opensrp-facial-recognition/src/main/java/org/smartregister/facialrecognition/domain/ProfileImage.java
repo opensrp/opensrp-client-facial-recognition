@@ -22,7 +22,6 @@ public class ProfileImage {
 //    private static final String UPDATED_AT_COLUMN = "updated_at";
 
     public ProfileImage(){
-
     }
 
     public ProfileImage(Long _id, String baseEntityId, String faceVector, String syncStatus, long createdAt, long updatedAt) {
