@@ -26,6 +26,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.smartregister.Context;
+import org.smartregister.facialrecognition.FacialRecognitionLibrary;
 import org.smartregister.facialrecognition.R;
 import org.smartregister.facialrecognition.activities.ClientsListActivity;
 import org.smartregister.facialrecognition.activities.OpenCameraActivity;
@@ -345,9 +346,9 @@ public class Tools {
                 albumArray[i] = Byte.parseByte(splitStringArray[i]);
             }
 
-//            boolean result = OpenCameraActivity.faceProc.deserializeRecognitionAlbum(albumArray);
+            boolean result = FacialRecognitionLibrary.faceProc.deserializeRecognitionAlbum(albumArray);
 
-//            if (result) Log.e(TAG, "loadAlbum: "+"Succes" );
+            if (result) Log.e(TAG, "loadAlbum: "+"Succes" );
 
         } else {
             Log.e(TAG, "loadAlbum: " + "is it your first record ? if no, there is problem happen.");
