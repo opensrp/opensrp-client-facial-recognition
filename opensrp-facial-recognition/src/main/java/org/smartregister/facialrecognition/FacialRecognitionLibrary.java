@@ -63,7 +63,8 @@ public class FacialRecognitionLibrary {
     }
 
     private static void luxandSDK() {
-
+        Log.d(TAG, "luxandSDK: Library Used" );
+//        Log.e(TAG, "luxandSDK: Library Used" );
         int res = FSDK.ActivateLibrary(ACTIVATION_KEY);
 
         if (res != FSDK.FSDKE_OK) {
@@ -75,6 +76,8 @@ public class FacialRecognitionLibrary {
     }
 
     private static void snapdragonSDK() {
+        Log.d(TAG, "snapdragonSDK: Library Used" );
+//        Log.e(TAG, "snapdragonSDK: Library Used" );
         if (isDevCompat == null) isDevCompat = FacialProcessing.isFeatureSupported(FacialProcessing.FEATURE_LIST.FEATURE_FACIAL_RECOGNITION);
 
         if (!activityStartedOnce) {

@@ -93,11 +93,18 @@ public class BitmapUtil {
 
     }
 
+    /**
+     * Method Save Vector to Database
+     * @param updatedMode
+     * @param uid
+     * @param objFace
+     * @return
+     */
     private boolean saveToDb(boolean updatedMode, String uid, FacialProcessing objFace) {
+
         final ImageRepository imageRepo = FacialRecognitionLibrary.getInstance().facialRepository();
 
         byte[] faceVector;
-
 
         if (imageRepo != null) {
 
