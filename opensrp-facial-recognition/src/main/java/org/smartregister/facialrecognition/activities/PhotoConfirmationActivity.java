@@ -340,8 +340,8 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
 //        }
 
         Intent intent = new Intent(PhotoConfirmationActivity.this, origin_class);
-        intent.putExtra("org.ei.opensrp.indonesia.face.face_mode", true);
-        intent.putExtra("org.ei.opensrp.indonesia.face.base_id", selectedPersonName);
+        intent.putExtra("org.smartregister.bidan.face.face_mode", true);
+        intent.putExtra("org.smartregister.bidan.face.base_id", selectedPersonName);
 
         startActivity(intent);
 

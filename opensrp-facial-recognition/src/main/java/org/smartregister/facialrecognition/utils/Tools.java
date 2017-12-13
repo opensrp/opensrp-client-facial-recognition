@@ -425,7 +425,7 @@ public class Tools {
     }
 
     /**
-     * Fetch data from API (json
+     * Fetch data from API (json)
      * @param mContext
      * @param facialRepository
      */

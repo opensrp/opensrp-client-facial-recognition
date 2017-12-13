@@ -35,8 +35,7 @@ public class ImageRepository extends BaseRepository {
     private static final String[] PHOTO_TABLE_COLUMNS = { ID_COLUMN, BASE_ENTITY_ID_COLUMN, FACE_VECTOR_COLUMN, SYNC_STATUS_COLUMN, CREATED_AT_COLUMN, UPDATED_AT_COLUMN};
     private static final String PHOTO_SQL = "CREATE TABLE "+ PHOTO_TABLE_NAME +" (_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
             "base_entity_id VARCHAR NOT NULL, face_vector VARCHAR, sync_status VARCHAR, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP)";
-    private static final String ENTITY_ID_INDEX =
-            "CREATE INDEX " + PHOTO_TABLE_NAME + "_" + BASE_ENTITY_ID_COLUMN + "_index ON "
+    private static final String ENTITY_ID_INDEX = "CREATE INDEX " + PHOTO_TABLE_NAME + "_" + BASE_ENTITY_ID_COLUMN + "_index ON "
                     + PHOTO_TABLE_NAME + "(" + BASE_ENTITY_ID_COLUMN + " " + "COLLATE" + " NOCASE);";
     public static String TYPE_Unsynced = "Unsynced";
     public static String TYPE_Synced = "Synced";
@@ -55,6 +54,7 @@ public class ImageRepository extends BaseRepository {
     public static void createTable(SQLiteDatabase database){
         database.execSQL(PHOTO_SQL);
         database.execSQL(ENTITY_ID_INDEX);
+        Log.d(TAG, "createTable: done" );
     }
 
     public static ImageRepository getInstance() {

@@ -79,8 +79,13 @@ dependencies {
 
 //    compile 'com.squareup.okhttp3:logging-interceptor:3.8.1'
 //    compile 'com.squareup.okhttp3:okhttp:3.8.1'
-    compile 'com.github.bumptech.glide:okhttp3-integration:1.4.0@aar'
-    compile 'com.squareup.okhttp3:okhttp:3.2.0'
+//    compile 'com.github.bumptech.glide:okhttp3-integration:1.4.0@aar'
+//    compile 'com.squareup.okhttp3:okhttp:3.2.0'
+
+//    compile 'com.google.code.gson:gson:2.3.1'
+//    compile 'com.squareup.retrofit2:retrofit:+'
+//    compile 'com.squareup.retrofit2:converter-gson:+'
+    compile 'com.squareup.okhttp3:okhttp:3.8.1'
 
     compile 'com.balysv.materialmenu:material-menu:2.0.0'
 

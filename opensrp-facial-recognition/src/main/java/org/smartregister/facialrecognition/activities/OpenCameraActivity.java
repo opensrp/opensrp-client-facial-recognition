@@ -77,7 +77,7 @@ public class OpenCameraActivity extends Activity implements PreviewCallback {
     private ImageView menu;
     private ImageView settingsButton, faceEyesMouthBtn, perfectPhotoButton, galleryButton, flashButton;
 
-    private boolean isDevCompat;
+    public boolean isDevCompat;
     private int displayAngle;
     private boolean smileFlag;
     private boolean blinkFlag;
@@ -107,8 +107,8 @@ public class OpenCameraActivity extends Activity implements PreviewCallback {
         initCamera();
 
         // Load Vector Data
-//        Tools.loadAlbum(getApplicationContext());
-//        hash = OpenCameraActivity.retrieveHash(getApplicationContext());
+        Tools.loadAlbum(getApplicationContext());
+        hash = OpenCameraActivity.retrieveHash(getApplicationContext());
 
     }
 
@@ -181,13 +181,15 @@ public class OpenCameraActivity extends Activity implements PreviewCallback {
             Size previewSize = params.getPreviewSize();
 //            params.set("iso", 400);
 
-//            Log purpose only
+//            Debug purpose only
 //            int previewWidth = params.getPreviewSize().width;
 //            int previewHeight = params.getPreviewSize().height;
 //            Log.e(TAG, "Preview Size = " + previewWidth + " x " + previewHeight);
 
+            // =====================================================================================
             // View Mode : Landscape - Portrait
             // Landscape mode camera : Front , Back
+            // =====================================================================================
             if (this.getResources().getConfiguration().orientation ==
                     Configuration.ORIENTATION_LANDSCAPE && !switchCamera) {
                 faceProc.setFrame(data, previewSize.width, previewSize.height, true, angleEnum);
@@ -195,7 +197,6 @@ public class OpenCameraActivity extends Activity implements PreviewCallback {
                     Configuration.ORIENTATION_LANDSCAPE && switchCamera) {
                 faceProc.setFrame(data, previewSize.width, previewSize.height, false, angleEnum);
             }
-
             // Portrait mode camera : Front
             else if (this.getResources().getConfiguration().orientation ==
                     Configuration.ORIENTATION_PORTRAIT && !switchCamera) {
@@ -276,9 +277,9 @@ public class OpenCameraActivity extends Activity implements PreviewCallback {
 //                        Intent intent = new Intent(OpenCameraActivity.this, origin_class);
 
                         Intent intent = new Intent();
-                        intent.putExtra("org.ei.opensrp.indonesia.face.face_mode", true);
-                        intent.putExtra("org.ei.opensrp.indonesia.face.base_id", selectedPersonName);
-                        intent.putExtra("org.ei.opensrp.indonesia.face.proc_time", t_stopCamera);
+                        intent.putExtra("org.smartregister.bidan.face.face_mode", true);
+                        intent.putExtra("org.smartregister.bidan.face.base_id", selectedPersonName);
+                        intent.putExtra("org.smartregister.bidan.face.proc_time", t_stopCamera);
 //                        setResult(RESULT_OK);
 //                        startActivity(intent);
                         setResult(2, intent);
