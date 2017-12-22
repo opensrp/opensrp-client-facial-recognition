@@ -323,6 +323,7 @@ public class Tools {
      * Save Vector array to xml
      */
     public static void saveAlbum(String albumBuffer, android.content.Context context) {
+        Log.e(TAG, "saveAlbum: " );
         SharedPreferences settings = context.getSharedPreferences(FaceConstants.ALBUM_NAME, 0);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(FaceConstants.ALBUM_ARRAY, albumBuffer);
@@ -340,7 +341,6 @@ public class Tools {
             splitStringArray = arrayOfString.substring(1, arrayOfString.length() - 1).split(", ");
 
             albumArray = new byte[splitStringArray.length];
-
 
             for (int i = 0; i < splitStringArray.length; i++) {
                 albumArray[i] = Byte.parseByte(splitStringArray[i]);
@@ -746,7 +746,7 @@ public class Tools {
             saveHash(hash, mContext.applicationContext());
 
         } else {
-            Log.e(TAG, "setVectorsBuffered: "+ "Multimedia Table Not ready" );
+            Log.e(TAG, "setVectorsBuffered: "+ "Facials Table Not ready" );
         }
 
     }

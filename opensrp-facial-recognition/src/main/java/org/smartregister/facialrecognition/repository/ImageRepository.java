@@ -51,6 +51,7 @@ public class ImageRepository extends BaseRepository {
         super(repository);
     }
 
+
     public static void createTable(SQLiteDatabase database){
         database.execSQL(PHOTO_SQL);
         database.execSQL(ENTITY_ID_INDEX);

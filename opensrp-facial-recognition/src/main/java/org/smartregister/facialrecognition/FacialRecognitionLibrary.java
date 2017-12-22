@@ -13,6 +13,7 @@ import org.smartregister.Context;
 
 import org.smartregister.facialrecognition.domain.ProfileImage;
 import org.smartregister.facialrecognition.repository.ImageRepository;
+import org.smartregister.facialrecognition.util.BitmapUtil;
 import org.smartregister.facialrecognition.util.FSDK;
 import org.smartregister.facialrecognition.utils.FaceConstants;
 import org.smartregister.facialrecognition.utils.Tools;
@@ -119,7 +120,6 @@ public class FacialRecognitionLibrary {
         if (instance == null)
             throw new IllegalStateException("Instance does not exist. Call "+ FacialRecognitionLibrary.class.getName()+".init method in the onCreate method of your Application class!.");
 
-
         return instance;
     }
 
@@ -129,7 +129,9 @@ public class FacialRecognitionLibrary {
 
         Tools.setVectorfromAPI(context, facialRepository);
         Tools.setVectorsBuffered(context, facialRepository);
-        Tools.loadAlbum(context.applicationContext());
+//        Tools.loadAlbum(context.applicationContext());
+
+        BitmapUtil.loadAlbum(context.applicationContext());
 
         return facialRepository;
     }

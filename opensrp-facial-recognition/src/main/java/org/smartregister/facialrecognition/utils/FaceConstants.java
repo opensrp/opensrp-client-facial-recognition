@@ -5,8 +5,8 @@ package org.smartregister.facialrecognition.utils;
  */
 public class FaceConstants {
     public static final int THUMBSIZE = 128;
-    public static final String ALBUM_NAME = "VectorAlbum";
-    public static final String HASH_NAME = "UIDList";
+    public static final String ALBUM_NAME = "FR_VectorAlbum";
+    public static final String HASH_NAME = "FR_UIDList";
     public static final int MAX_PHOTO_SIZE = 1572864;   // 1.5 MB per photo
     public static final String ALBUM_ARRAY = "mByteArray";
 

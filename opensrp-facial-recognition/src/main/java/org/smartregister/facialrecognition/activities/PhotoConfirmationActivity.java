@@ -250,7 +250,7 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
         objFace.normalizeCoordinates(screenWidth, screenHeight);
 
         if (setBitmapFR){
-            Log.e(TAG, "image_proc: "+"success" );
+            Log.e(TAG, "useSnapdragonSDK: success" );
             if (faceDatas != null){
                 rects = new Rect[faceDatas.length];
                 for (int i = 0; i < faceDatas.length; i++) {
@@ -298,10 +298,11 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
 //                        confirmationView.setImageBitmap(storedBitmap);
                         // Face and Rect
 //                        confirmationView.setImageBitmap(mutableBitmap);
-                        Bitmap scaled = Bitmap.createScaledBitmap(mutableBitmap, screenWidth, screenHeight, false);
-                        confirmationView.setImageBitmap(scaled);
-                        Drawable drawable = confirmationView.getDrawable();//you should call after the bitmap drawn
-                        Rect bounds = drawable.getBounds();
+
+//                        Bitmap scaled = Bitmap.createScaledBitmap(mutableBitmap, screenWidth, screenHeight, false);
+//                        confirmationView.setImageBitmap(scaled);
+//                        Drawable drawable = confirmationView.getDrawable();
+//                        Rect bounds = drawable.getBounds();
                     }
                 }
             } else {
@@ -405,6 +406,7 @@ public class PhotoConfirmationActivity extends AppCompatActivity {
     }
 
     public void saveAlbum() {
+        Log.e(TAG, "saveAlbum: " );
         byte[] albumBuffer = OpenCameraActivity.faceProc.serializeRecogntionAlbum();
 //		saveCloud(albumBuffer);
         Log.e(TAG, "Size of byte Array =" + albumBuffer.length);

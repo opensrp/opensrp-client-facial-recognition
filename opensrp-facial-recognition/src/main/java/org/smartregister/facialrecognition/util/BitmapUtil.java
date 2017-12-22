@@ -1,6 +1,9 @@
 package org.smartregister.facialrecognition.util;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -9,15 +12,19 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.media.ThumbnailUtils;
-import android.renderscript.Element;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 
 import com.qualcomm.snapdragon.sdk.face.FacialProcessing;
 
+import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.facialrecognition.FacialRecognitionLibrary;
+import org.smartregister.facialrecognition.activities.OpenCameraActivity;
 import org.smartregister.facialrecognition.domain.ProfileImage;
 import org.smartregister.facialrecognition.repository.ImageRepository;
 import org.smartregister.facialrecognition.utils.FaceConstants;
+import org.smartregister.facialrecognition.utils.Tools;
 import org.smartregister.view.activity.DrishtiApplication;
 
 import java.io.File;
@@ -25,7 +32,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.UUID;
+import java.util.HashMap;
 
 /**
  * Created by wildan on 10/5/17.
@@ -35,6 +42,7 @@ public class BitmapUtil {
     public static String[] photoDirs = new String[]{DrishtiApplication.getAppDir(),
             DrishtiApplication.getAppDir() + File.separator + ".thumbs"};
     public static final String TAG = BitmapUtil.class.getSimpleName();
+    private static String[] splitStringArray;
 
     public void BitmapUtil(){
     }
@@ -44,11 +52,17 @@ public class BitmapUtil {
         if (saveToFile(mBitmap, uid)) {
             Log.e(TAG, "saveAndClose: " + "Saved File Success! uid= " + uid);
             if (saveToDb(updated, uid, objFace)) Log.e(TAG, "saveAndClose: " + "Stored DB Success!");
+            if (saveToLocal())Log.e(TAG, "saveAndClose: " + "Stored SharedPrefs Success!");;
 
         } else {
             Log.e(TAG, "saveAndClose: "+"Failed saved file!" );
         }
 
+    }
+
+    private boolean saveToLocal() {
+
+        return false;
     }
 
     private static boolean saveToFile(Bitmap mBitmap, String uid) {
@@ -134,6 +148,7 @@ public class BitmapUtil {
         return false;
     }
 
+    // DRAWING
     public static void drawRectFace(Rect rect, Bitmap mBitmap, float pixelDensity) {
         // Extra padding around the faceRects
         rect.set(rect.left -= 20, rect.top -= 20, rect.right += 20, rect.bottom += 20);
@@ -201,6 +216,61 @@ public class BitmapUtil {
 
 //        confirmationView.setImageBitmap(mutableBitmap);
 
+    }
+
+    /**
+     * Load Existing Album from Local
+     * @param context
+     */
+    public static void loadAlbum(Context context) {
+
+        SharedPreferences settings = context.getSharedPreferences(FaceConstants.ALBUM_NAME, 0);
+        String arrayOfString = settings.getString(FaceConstants.ALBUM_ARRAY, null);
+        byte[] albumArray;
+
+        if (arrayOfString != null) {
+
+            splitStringArray = arrayOfString.substring(1, arrayOfString.length() - 1).split(", ");
+
+            albumArray = new byte[splitStringArray.length];
+
+
+            for (int i = 0; i < splitStringArray.length; i++) {
+                albumArray[i] = Byte.parseByte(splitStringArray[i]);
+            }
+
+            boolean result = FacialRecognitionLibrary.faceProc.deserializeRecognitionAlbum(albumArray);
+
+            if (result) Log.e(TAG, "loadAlbum: "+"Succes" );
+
+        } else {
+            Log.e(TAG, "loadAlbum: " + "is it your first record ? if no, there is problem happen.");
+        }
+    }
+
+    public static void enableFR(final org.smartregister.Context context, final Activity detailActivity, final CommonPersonObjectClient idClient, ImageView kiview) {
+
+        final HashMap<String, String> hash = Tools.retrieveHash(context.applicationContext());
+
+        kiview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // FlurryFacade.logEvent("taking_mother_pictures_on_kohort_ibu_detail_view");
+                String entityid = idClient.entityId();
+
+                boolean updateMode = false;
+                if (hash.containsValue(entityid)) {
+                    updateMode = true;
+                }
+                Intent takePictureIntent = new Intent(detailActivity, OpenCameraActivity.class);
+                takePictureIntent.putExtra("org.smartregister.facialrecognition.OpenCameraActivity.updated", updateMode);
+                takePictureIntent.putExtra("org.smartregister.facialrecognition.PhotoConfirmationActivity.identify", false);
+                takePictureIntent.putExtra("org.smartregister.facialrecognition.PhotoConfirmationActivity.id", entityid);
+                takePictureIntent.putExtra("org.smartregister.facialrecognition.PhotoConfirmationActivity.origin", TAG); // send Class Name
+
+                detailActivity.startActivityForResult(takePictureIntent, 2);
+            }
+        });
     }
 
 }
