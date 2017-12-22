@@ -33,6 +33,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by wildan on 10/5/17.
@@ -51,8 +52,8 @@ public class BitmapUtil {
 
         if (saveToFile(mBitmap, uid)) {
             Log.e(TAG, "saveAndClose: " + "Saved File Success! uid= " + uid);
-            if (saveToDb(updated, uid, objFace)) Log.e(TAG, "saveAndClose: " + "Stored DB Success!");
-            if (saveToLocal())Log.e(TAG, "saveAndClose: " + "Stored SharedPrefs Success!");;
+            if (saveToDb(mContext, updated, uid, objFace)) Log.e(TAG, "saveAndClose: " + "Stored DB Success!");
+//            if (saveToLocal())Log.e(TAG, "saveAndClose: " + "Stored SharedPrefs Success!");;
 
         } else {
             Log.e(TAG, "saveAndClose: "+"Failed saved file!" );
@@ -60,7 +61,90 @@ public class BitmapUtil {
 
     }
 
-    private boolean saveToLocal() {
+    /**
+     * Stored list detected Base entity ID to Shared Preference for buffered
+     *
+     * @param hashMap HashMap
+     * @param context context
+     */
+    public static void saveHash(HashMap<String, String> hashMap, android.content.Context context) {
+        SharedPreferences settings = context.getSharedPreferences(FaceConstants.HASH_NAME, 0);
+
+        SharedPreferences.Editor editor = settings.edit();
+        editor.clear();
+//        Log.e(TAG, "Hash Save Size = " + hashMap.size());
+        for (String s : hashMap.keySet()) {
+//            Log.e(TAG, "saveHash: " + s);
+            editor.putString(s, hashMap.get(s));
+        }
+        editor.apply();
+    }
+
+    /**
+     * Get Existing Hash
+     *
+     * @param context Context
+     * @return hash
+     */
+    public static HashMap<String, String> retrieveHash(android.content.Context context) {
+        SharedPreferences settings = context.getSharedPreferences(FaceConstants.HASH_NAME, 0);
+        HashMap<String, String> hash = new HashMap<>();
+        hash.putAll((Map<? extends String, ? extends String>) settings.getAll());
+        return hash;
+    }
+
+    /**
+     * Save Vector array to xml
+     */
+    public static void saveAlbum(String albumBuffer, android.content.Context context) {
+        Log.e(TAG, "saveAlbum: " );
+        SharedPreferences settings = context.getSharedPreferences(FaceConstants.ALBUM_NAME, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(FaceConstants.ALBUM_ARRAY, albumBuffer);
+        editor.apply();
+    }
+
+//    public static void loadAlbum(android.content.Context context) {
+//
+//        SharedPreferences settings = context.getSharedPreferences(FaceConstants.ALBUM_NAME, 0);
+//        String arrayOfString = settings.getString(FaceConstants.ALBUM_ARRAY, null);
+//        byte[] albumArray;
+//
+//        if (arrayOfString != null) {
+//
+//            splitStringArray = arrayOfString.substring(1, arrayOfString.length() - 1).split(", ");
+//
+//            albumArray = new byte[splitStringArray.length];
+//
+//            for (int i = 0; i < splitStringArray.length; i++) {
+//                albumArray[i] = Byte.parseByte(splitStringArray[i]);
+//            }
+//
+//            boolean result = FacialRecognitionLibrary.faceProc.deserializeRecognitionAlbum(albumArray);
+//
+//            if (result) Log.e(TAG, "loadAlbum: "+"Succes" );
+//
+//        } else {
+//            Log.e(TAG, "loadAlbum: " + "is it your first record ? if no, there is problem happen.");
+//        }
+//    }
+
+
+
+    private boolean saveToLocal(Context mContext, String uid, int result, byte[] faceVector) {
+
+        HashMap<String, String> hash = retrieveHash(mContext);
+        hash.put(uid, Integer.toString(result));
+
+        // Save Hash
+        saveHash(hash, mContext);
+
+        // Save to buffer
+        saveAlbum(Arrays.toString(faceVector), mContext);
+
+        String albumBufferArr = Arrays.toString(faceVector);
+
+        String[] faceVectorContent = albumBufferArr.substring(1, albumBufferArr.length() - 1).split(", ");
 
         return false;
     }
@@ -109,12 +193,14 @@ public class BitmapUtil {
 
     /**
      * Method Save Vector to Database
+     *
+     * @param mContext
      * @param updatedMode
      * @param uid
      * @param objFace
      * @return
      */
-    private boolean saveToDb(boolean updatedMode, String uid, FacialProcessing objFace) {
+    private boolean saveToDb(Context mContext, boolean updatedMode, String uid, FacialProcessing objFace) {
 
         final ImageRepository imageRepo = FacialRecognitionLibrary.getInstance().facialRepository();
 
@@ -130,6 +216,9 @@ public class BitmapUtil {
                 String[] faceVectorContent = albumBufferArr.substring(1, albumBufferArr.length() - 1).split(", ");
                 // Get Face Vector Content Only by removing Header
                 faceVectorContent = Arrays.copyOfRange(faceVectorContent, faceVector.length - 300, faceVector.length);
+
+                // SharedPrefs
+                saveToLocal(mContext, uid, result, faceVector);
 
                 ProfileImage profileImage = new ProfileImage();
 
